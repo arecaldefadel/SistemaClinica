@@ -1,0 +1,13 @@
+{
+  "name": "sistemaclinica",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "cd server && npm run dev",
+    "client" : "cd client && npm run dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

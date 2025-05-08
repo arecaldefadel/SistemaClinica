@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --text: #252525;
+    --background: #fbf9fb;
+    --primary: #aac98d;
+    --secondary: #cee0bd;
+    --accent: #547838;
+    --muted: #bfbfbf;
+    --gray:#eeeeee;
+
+    /* Buttons Variants */
+    --button: #735FA3;
+    --button-hover: #9689cb;
+
+    --button-danger: #A35F97;
+    --button-danger-hover: #b97bb2;
+
+    --button-warn: #bea034;
+    --button-warn-hover: #cdb542;
+
+  }
+}
+
+.active-item{
+  background-color: var(--secondary);
+  color: var(--accent);
+  border-radius: var(--radius-md)
+}
+
+.trSelected{
+  background-color: var(--secondary);
+  border-radius: var(--radius-md)
+}
