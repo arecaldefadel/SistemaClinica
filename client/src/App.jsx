@@ -24,7 +24,7 @@ const menu = [{
   "CODIGO": "1",
   "PATHNAME": "",
   "PATH": "./pages/Dashboard",
-  "DESCRIPCION": "Dashboard",
+  "DESCRIPCION": "Inicio",
   "VISIBLE": 1,
   "ICONO": "home",
   "MENU": "1"
@@ -35,7 +35,7 @@ const menu = [{
   "PATH": "./pages/Dashboard/views/Pacientes",
   "DESCRIPCION": "Pacientes",
   "VISIBLE": 1,
-  "ICONO": "user",
+  "ICONO": "users",
   "MENU": "1"
 },
 {
@@ -44,7 +44,7 @@ const menu = [{
   "PATH": "./pages/Playground",
   "DESCRIPCION": "Compoententes",
   "VISIBLE": 1,
-  "ICONO": "home",
+  "ICONO": "network-wired",
   "MENU": "1"
 },]
 
