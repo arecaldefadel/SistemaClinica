@@ -54,7 +54,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
           <nav className="flex flex-col">
             {menu.map((item, i) => {
               let classActive = "";
-              const urlItem = `${item.url}`;
+              const urlItem = `/${item.url}`;
 
               if (!path) {
                 classActive = "active-item";
@@ -71,7 +71,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
                 <Link to={item.url} onClick={(e) => handledSelect(e.target, item.url)} key={i}>
                   <div className={`nav-item flex flex-row items-center px-5 h-10 gap-4 text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--secondary)] hover:rounded-md ${classActive}`}>
                     <Icon iconName={item.icon} />
-                    <span key={i} href={item.url} className="font-bold">
+                    <span key={i} href={item.url || '/'} className="font-bold">
                       {item.title}
                     </span>
                   </div>

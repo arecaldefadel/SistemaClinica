@@ -22,7 +22,7 @@ library.add(...iconList);
 // ===========================================================
 const menu = [{
   "CODIGO": "1",
-  "PATHNAME": "dashboard",
+  "PATHNAME": "",
   "PATH": "./pages/Dashboard",
   "DESCRIPCION": "Dashboard",
   "VISIBLE": 1,
@@ -36,6 +36,15 @@ const menu = [{
   "DESCRIPCION": "Pacientes",
   "VISIBLE": 1,
   "ICONO": "user",
+  "MENU": "1"
+},
+{
+  "CODIGO": "1",
+  "PATHNAME": "playground",
+  "PATH": "./pages/Playground",
+  "DESCRIPCION": "Compoententes",
+  "VISIBLE": 1,
+  "ICONO": "home",
   "MENU": "1"
 },]
 

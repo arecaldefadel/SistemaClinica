@@ -77,7 +77,7 @@ const TableV2 = ({
     return (
       <Tooltip title={action.title} key={key}>
         <span
-          className="w-[32px] h-[32px] flex items-center content-center bg-transparent rounded-md cursor-pointer text-gray-600"
+          className="w-[32px] h-[32px] bg-transparent rounded-md cursor-pointer text-gray-600"
           onClick={(e) => {
             e.stopPropagation();
             action.func(rowData[options.idTable]);
@@ -160,7 +160,7 @@ const TableV2 = ({
           )}
 
           {options.actions.some((a) => !a.cols) && (
-            <td className="flex gap-1 justify-center items-center">
+            <td className="flex gap-2 justify-center items-center ">
               {options.actions
                 .filter((a) => !a.cols)
                 .map((action, index) => renderActionIcon(action, row, '', `action-${i}-${index}`))}

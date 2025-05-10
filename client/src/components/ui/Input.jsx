@@ -11,7 +11,7 @@ export default function Input({
   ...rest
 }) {
   return (
-    <div className="w-full">
+    <div className="">
       {label && (
         <label
           htmlFor={name}
@@ -29,7 +29,7 @@ export default function Input({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full px-3 py-2 rounded-xl border border-[var(--muted)] bg-white text-[var(--text)] placeholder-[var(--muted)] outline-none focus:ring-2 focus:ring-[var(--primary)] transition disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`px-2 py-1 rounded-xl border border-[var(--muted)] bg-white text-[var(--text)] placeholder-[var(--muted)] outline-none focus:ring-2 focus:ring-[var(--primary)] transition disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
         {...rest}
       />
     </div>
