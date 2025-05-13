@@ -108,16 +108,39 @@ const Layout = ({ menuUser }) => {
         <div className="flex flex-col gap-4">
           <form className="flex flex-col gap-4">
             <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
-              <Input label={"Nombre"} name={"nombre"} value={""} className="max-sm:w-full"/>
-              <Input label={"Apellido"} name={"apellido"} value={""} className="max-sm:w-full"/>
+              <Input
+                label={"Nombre"}
+                name={"nombre"}
+                value={""}
+                className="max-sm:w-full"
+              />
+              <Input
+                label={"Apellido"}
+                name={"apellido"}
+                value={""}
+                className="max-sm:w-full"
+              />
             </div>
             <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
-              <Input label={"Usuario"} name={"username"} value={""} className="max-sm:w-full"/>
-              <Input label={"Contraseña"} name={"password"} value={""} className="max-sm:w-full"/>
+              <Input
+                label={"Usuario"}
+                name={"username"}
+                value={""}
+                className="max-sm:w-full"
+              />
+              <Input
+                label={"Contraseña"}
+                name={"password"}
+                value={""}
+                className="max-sm:w-full"
+              />
             </div>
             <div className="flex gap-4 flex-row justify-around">
-              <Button title="Guardar" />
-              <Button title="Cambiar contraseña" variant="warning" />
+              <div className="flex gap-4">
+                <Button title="Guardar" onClick={() => setShowProfile(false)} />
+                <Button title="Cancelar" variant="danger" onClick={() => setShowProfile(false)} />
+              </div>
+              <Button title="Cambiar contraseña" variant="warning"  />
             </div>
           </form>
         </div>
