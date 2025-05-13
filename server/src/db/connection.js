@@ -10,5 +10,5 @@ const pool = await mysql.createConnection({
   password: config.DB_PASSWORD,
   port: config.DB_PORT,
 });
-
+pool.config.namedPlaceholders = true;
 export { pool };

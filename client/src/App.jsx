@@ -7,10 +7,10 @@ import {
 } from "react-router-dom";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import * as Icons from "@fortawesome/free-solid-svg-icons";
+import settiongs from './settings.json'
 import Home from "@/pages/Home";
 import Default from "@/pages/Default";
 import Layout from "@/components/ui/Layout";
-
 import Playground from "@/pages/Playground";
 
 // ===========================================================
@@ -20,34 +20,7 @@ const iconList = Object.keys(Icons)
   .map((icon) => Icons[icon]);
 library.add(...iconList);
 // ===========================================================
-const menu = [{
-  "CODIGO": "1",
-  "PATHNAME": "",
-  "PATH": "./pages/Dashboard",
-  "DESCRIPCION": "Inicio",
-  "VISIBLE": 1,
-  "ICONO": "home",
-  "MENU": "1"
-},
-{
-  "CODIGO": "2",
-  "PATHNAME": "pacientes",
-  "PATH": "./pages/Dashboard/views/Pacientes",
-  "DESCRIPCION": "Pacientes",
-  "VISIBLE": 1,
-  "ICONO": "users",
-  "MENU": "1"
-},
-{
-  "CODIGO": "1",
-  "PATHNAME": "playground",
-  "PATH": "./pages/Playground",
-  "DESCRIPCION": "Compoententes",
-  "VISIBLE": 1,
-  "ICONO": "network-wired",
-  "MENU": "1"
-},]
-
+const menu = settiongs.menu
 // Genero un lista de rutas con para la config del usuario.
 const arrayRutas = menu.map((ruta) => {
   const ElementMenu = lazy(() =>

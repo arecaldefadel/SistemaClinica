@@ -1,22 +1,32 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import useSidebar from "@/hooks/useSidebar";
 import Sidebar from "./SideBar";
 import { nameSystem } from "@/settings.json";
+import { nvl } from "@/utilities";
+import { Dropdown, Modal, Input, Button } from "@/components/ui";
 
-const Layout = ({menuUser}) => {
+const Layout = ({ menuUser }) => {
   const useSidebarHook = useSidebar();
+  const [showProfile, setShowProfile] = useState(false);
 
   const handleSideBar = () =>
     useSidebarHook.sidebarOpen
       ? useSidebarHook.hideSidebar()
       : useSidebarHook.showSidebar();
-  // const listMenu = [
-  //   { title: "Inicio", icon: "home", url: "/dashboard" }, //Pacientes Turnos Configuración
-  //   { title: "Pacientes", icon: "users", url: "/pacientes" },
-  //   { title: "Turnos", icon: "calendar-days", url: "/" },
-  //   { title: "Configuración", icon: "gears", url: "/" },
-  // ];
+
+  const userData = {
+    nick: "Augusto Recalde",
+  };
+
+  const generateIconUser = () => {
+    const letter = document.getElementById("user-info-letter");
+    const user = userData?.nick || false;
+    if (user && letter) {
+      letter.textContent = nvl(user[0], "").trim().toUpperCase(); // nombre_apellido[1][0].trim() + nombre_apellido[0][0].trim();
+    }
+  };
+
   const ITEM_VISIBILITY = 1;
   const ItemsMenu = [];
   menuUser.forEach((item) => {
@@ -29,9 +39,20 @@ const Layout = ({menuUser}) => {
     }
   });
 
+  useEffect(() => {
+    // Set the icon user
+    generateIconUser();
+  });
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
+      {useSidebarHook.sidebarOpen ? (
+        <div
+          className="h-full w-full absolute z-29 bg-gray-600 opacity-50"
+          onClick={() => useSidebarHook.hideSidebar()}
+        ></div>
+      ) : null}
       <Sidebar
         menu={ItemsMenu}
         title={nameSystem}
@@ -40,13 +61,35 @@ const Layout = ({menuUser}) => {
       />
 
       {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden min-md:px-10 min-md:pt-10 gap-10">
+      <div className="flex-1 flex flex-col overflow-hidden min-lg:px-10 min-lg:pt-10 gap-10">
         {/* Navbar */}
-        <header className="flex items-center justify-between p-4   bg-white shadow min-md:rounded-lg">
-          <button className="md:hidden text-gray-700" onClick={handleSideBar}>
+        <header className="flex items-center justify-between p-4 bg-white shadow min-md:rounded-lg">
+          <button className="lg:hidden text-gray-700" onClick={handleSideBar}>
             ☰
           </button>
-          <h2 className="text-xl font-semibold">Panel Principal</h2>
+          <div className="flex items-center justify-end gap-4 w-full">
+            <Dropdown
+              trigger={
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">{userData.nick}</span>
+                  <span
+                    id="user-info-letter"
+                    className="flex items-center justify-center font-bold text-[var(--accent)] w-10 h-10 rounded-full bg-[var(--primary)] cursor-pointer"
+                  ></span>
+                </div>
+              }
+            >
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
+                onClick={() => setShowProfile(true)}
+              >
+                Modificar perfil
+              </button>
+              <button className="w-full text-left px-4 py-2 hover:bg-[var(--gray)] text-[var(--button-danger)]">
+                Cerrar sesión
+              </button>
+            </Dropdown>
+          </div>
         </header>
 
         {/* Content */}
@@ -56,6 +99,30 @@ const Layout = ({menuUser}) => {
           </Suspense>
         </main>
       </div>
+      {/* Modal de Modificación de Perfil */}
+      <Modal
+        isOpen={showProfile}
+        onClose={() => setShowProfile(false)}
+        title="Modificar Perfil"
+      >
+        <div className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4">
+            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
+              <Input label={"Nombre"} name={"nombre"} value={""} className="max-sm:w-full"/>
+              <Input label={"Apellido"} name={"apellido"} value={""} className="max-sm:w-full"/>
+            </div>
+            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
+              <Input label={"Usuario"} name={"username"} value={""} className="max-sm:w-full"/>
+              <Input label={"Contraseña"} name={"password"} value={""} className="max-sm:w-full"/>
+            </div>
+            <div className="flex gap-4 flex-row justify-around">
+              <Button title="Guardar" />
+              <Button title="Cambiar contraseña" variant="warning" />
+            </div>
+          </form>
+        </div>
+      </Modal>
+      {/* Fin del modal */}
     </div>
   );
 };

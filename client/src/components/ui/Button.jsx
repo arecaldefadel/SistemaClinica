@@ -9,7 +9,7 @@ const Button = ({title = "", onClick = ()=>{} , variant='default', icon,classNam
 
 
   return (
-    <button onClick={onClick} className={`flex flex-row gap-2 text-white px-4 py-2 rounded  hover:cursor-pointer ${className} ${buttonVariants[variant]}`}>
+    <button onClick={onClick} className={`flex flex-row gap-2 text-white px-4 py-2 rounded  hover:cursor-pointer items-center justify-center ${className} ${buttonVariants[variant]}`}>
       {
         icon? <Icon iconName={icon} ></Icon> : null
       }

@@ -14,8 +14,9 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
     setPath(window.location.hash.split("#")[1])
   })
 
-  const handledSelect = (selectedItem, url) => {
+  const handledSelect = (selectedItem, url, title ) => {
     setPath(url)
+    hook.handleSelect(title);
     const activateItem = selectedItem.classList.contains("active-item");
     let oldItem = document.querySelector(".active-item");
     if (!activateItem) {
@@ -31,12 +32,12 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
         className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out 
       ${
         hook.sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 md:static md:inset-0`}
+      } lg:translate-x-0 lg:static lg:inset-0`}
       >
         <div className="h-full flex flex-col gap-2 space-y-4 bg-[var(--primary)] rounded-r-lg">
           <div className="flex flex-row items-center w-full md:p-4">
             <div className="md:hidden flex items-center justify-betweenshadow p-4">
-              <button className="md:hidden text-white" onClick={handle}>
+              <button className=" text-white" onClick={handle}>
                 ☰
               </button>
             </div>
@@ -48,7 +49,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
                   className="rounded-full w-18 h-18 object-cover"
                 />
               </div>
-              <h1 className="text-xl font-bold text-[var(--text)]">{title}</h1>
+              <h1 className="text-xl font-bold text-[var(--text)] ">{title}</h1>
             </div>
           </div>
           <nav className="flex flex-col">
@@ -56,9 +57,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
               let classActive = "";
               const urlItem = `/${item.url}`;
 
-              if (!path) {
-                classActive = "active-item";
-              } else if (path === urlItem) {
+              if (path === urlItem) {
                 classActive = "active-item";
                 setOldPath(urlItem);
               } else {
@@ -68,7 +67,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
               }
 
               return (
-                <Link to={item.url} onClick={(e) => handledSelect(e.target, item.url)} key={i}>
+                <Link to={item.url} onClick={(e) => handledSelect(e.target, item.url, item.title)} key={i}>
                   <div className={`nav-item flex flex-row items-center px-5 h-10 gap-4 text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--secondary)] hover:rounded-md ${classActive}`}>
                     <Icon iconName={item.icon} />
                     <span key={i} href={item.url || '/'} className="font-bold">

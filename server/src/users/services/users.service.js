@@ -6,13 +6,14 @@ import config from "../../config.js";
 export const loginService = async ({ username, password }) => {
   let compare = false;
   try {
-    const [rows] = await pool.query(
+    // Se consulta el usuario y la contraseña
+    const [rows] = await pool.execute(
       `SELECT 
         username, id_user, nombre_personas, apellido_personas, password_users 
        FROM users 
        INNER JOIN personas ON users.persona_id = personas.id_personas
-       WHERE username = ?`,
-      [username]
+       WHERE username = :username`,
+      { username }
     );
 
     if (rows.length > 0) {
@@ -33,7 +34,7 @@ export const loginService = async ({ username, password }) => {
 
     // Se genera el toque a partir de la info de la bd y el TOKEN_KEY
     const token = jwt.sign(datos, config.TOKEN_KEY, {
-      expiresIn: "12h", // Con expiración en segundos horas
+      expiresIn: "12h", // Con expiración en 12 horas
     });
     // console.log(JSON.parse(token));
     return {

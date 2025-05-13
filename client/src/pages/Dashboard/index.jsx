@@ -76,32 +76,22 @@ const Index = () => {
     classConditions: classConditionsOptions,
     actions: [
       {
-        icon: 'edit',
-        title: "Editar",
-        func: () => { setShowPacienteModal(true) },
-      },
-      {
-        icon: 'trash',
-        title: "Eliminar",
-        func: (id) => { alert(id) },
-      },
-      {
         icon: 'check',
         title: "Atendido",
-        func: (id) => { alert(id) },
+        func: (id) => { alert('Marcar como antendido a '+ id) },
         condition: {
           field: "atentido",
-          value: "Si",
+          value: "No",
           oper: "=",
         },
       },
       {
         icon: 'cancel',
         title: "No Atendido",
-        func: (id) => { alert(id) },
+        func: (id) => { alert('Marcar como no antendido a '+ id) },
         condition: {
           field: "atentido",
-          value: "No",
+          value: "Si",
           oper: "=",
         },
       },
@@ -116,7 +106,7 @@ const Index = () => {
       />
       {/* Estadisticas */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row max-sm:flex-col gap-10 max-md:gap-2 max-sm:p-4">
+        <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2 max-md:gap-2 max-sm:p-4">
           <Card title={"Total Pacientes"}>
             <div className="flex flex-col">
               <span className="text-4xl max-sm:text-2xl  font-semibold text-[var(--accent)]">
