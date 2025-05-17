@@ -14,3 +14,4 @@ export { default as Tooltip } from "./Tooltip";
 export { default as TrData } from "./TrData";
 export { default as TrTable } from "./TrTable";
 export { default as Dropdown } from "./Dropdown";
+export { default as ToastContainer } from "./ToastContainer";

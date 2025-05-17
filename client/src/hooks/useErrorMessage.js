@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 /** Ayuda a gestionar los mensajes de error. */
-function useErrorMessage(value) {
+function useErrorMessage() {
   const [error, setError] = useState({
     state: false,
     msg: "",
@@ -15,7 +15,7 @@ function useErrorMessage(value) {
   };
 
   const hideMessage = async () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         setError({ state: false, msg: "" });
         resolve(false);

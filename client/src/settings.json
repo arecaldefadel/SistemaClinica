@@ -1,12 +1,12 @@
 {
   "nameSystem": "Clínica San Pedro",
   "nameSystemShort": "CSP",
-  "logoSystem": "/vite.svg",
+  "logoSystem": "/logo.png",
   "menu": [
     {
       "CODIGO": "1",
       "PATHNAME": "",
-      "PATH": "./pages/Dashboard",
+      "componentPath": "menu-dashboard",
       "DESCRIPCION": "Inicio",
       "VISIBLE": 1,
       "ICONO": "home",
@@ -15,7 +15,7 @@
     {
       "CODIGO": "2",
       "PATHNAME": "pacientes",
-      "PATH": "./pages/Dashboard/views/Pacientes",
+      "componentPath": "menu-pacientes",
       "DESCRIPCION": "Pacientes",
       "VISIBLE": 1,
       "ICONO": "users",
@@ -24,7 +24,7 @@
     {
       "CODIGO": "3",
       "PATHNAME": "turnos",
-      "PATH": "./pages/Dashboard/views/Turnos",
+      "componentPath": "menu-turnos",
       "DESCRIPCION": "Turnos",
       "VISIBLE": 1,
       "ICONO": "calendar-days",
@@ -33,7 +33,7 @@
     {
       "CODIGO": "4",
       "PATHNAME": "playground",
-      "PATH": "./pages/Playground",
+      "componentPath": "menu-playground",
       "DESCRIPCION": "Compoententes",
       "VISIBLE": 1,
       "ICONO": "laptop-code",

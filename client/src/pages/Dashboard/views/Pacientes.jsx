@@ -8,41 +8,48 @@ import {
   Button,
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
+import ModalNewUser from "@/components/users/ModalNewUser";
+import { getPacientes } from "../services/services";
 
 const Pacientes = () => {
   const pacientesPagination = usePagination();
+  const [listPacientes, setListPacientes] = useState([])
   const [showPacienteModal, setShowPacienteModal] = useState(false);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
 
   useEffect(() => {
-    pacientesPagination.asignarCountPage(10);
-    pacientesPagination.asignarCountRecords(100);
-    pacientesPagination.asignarCountRows(5);
-    setIsLoadingTable(false);
-  }, [pacientesPagination.actualPage, isLoadingTable]);
+    Promise.all([getPacientes({ page: 1, pageSize: 10 })]).then((res) => {
+      const [resPaciente] = res;
+      pacientesPagination.asignarCountPage(resPaciente?.request?.meta?.totalPages || 0);
+      pacientesPagination.asignarCountRecords(resPaciente?.request?.meta?.total || 0);
+      pacientesPagination.asignarCountRows(5);
+      setListPacientes(resPaciente?.request?.datos)
+      setIsLoadingTable(false);
+    });
+  }, [isLoadingTable]);
 
-  const listPacientes = {
-    data: [
-      {
-        id: 1,
-        name: "Juan Perez",
-        phone: "123456789",
-        insurance: "OSDE",
-      },
-      {
-        id: 2,
-        name: "Maria Gomez",
-        phone: "987654321",
-        insurance: "Galeno",
-      },
-      {
-        id: 3,
-        name: "Pedro Martinez",
-        phone: "456789123",
-        insurance: "Sancor",
-      },
-    ],
-  };
+  // const listPacientes = {
+  //   data: [
+  //     {
+  //       id: 1,
+  //       name: "Juan Perez",
+  //       phone: "123456789",
+  //       insurance: "OSDE",
+  //     },
+  //     {
+  //       id: 2,
+  //       name: "Maria Gomez",
+  //       phone: "987654321",
+  //       insurance: "Galeno",
+  //     },
+  //     {
+  //       id: 3,
+  //       name: "Pedro Martinez",
+  //       phone: "456789123",
+  //       insurance: "Sancor",
+  //     },
+  //   ],
+  // };
 
   const tableOptions = {
     hidden: ["id"],
@@ -120,30 +127,7 @@ const Pacientes = () => {
             onClose={() => setShowPacienteModal(false)}
             title="Modificar Turno"
           >
-            <div className="flex flex-col gap-4">
-              <form className="flex flex-col gap-4">
-                <label htmlFor="paciente">Paciente</label>
-                <input
-                  type="text"
-                  id="paciente"
-                  name="paciente"
-                  className="border border-gray-300 rounded-lg p-2"
-                />
-                <label htmlFor="fecha">Fecha</label>
-                <input
-                  type="date"
-                  id="fecha"
-                  name="fecha"
-                  className="border border-gray-300 rounded-lg p-2"
-                />
-                <button
-                  type="submit"
-                  className="bg-[var(--accent)] text-white rounded-lg p-2"
-                >
-                  Guardar
-                </button>
-              </form>
-            </div>
+            <ModalNewUser setShowModal={setShowPacienteModal} />
           </Modal>
         )
         // Fin del modal

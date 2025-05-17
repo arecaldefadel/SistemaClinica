@@ -14,9 +14,8 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
     setPath(window.location.hash.split("#")[1])
   })
 
-  const handledSelect = (selectedItem, url, title ) => {
+  const handledSelect = (selectedItem, url ) => {
     setPath(url)
-    hook.handleSelect(title);
     const activateItem = selectedItem.classList.contains("active-item");
     let oldItem = document.querySelector(".active-item");
     if (!activateItem) {
@@ -42,7 +41,7 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
               </button>
             </div>
             <div className="flex flex-col items-center justify-center w-full">
-              <div className="flex items-center justify-center h-20 w-20 bg-gray-600 rounded-full max-md:hidden">
+              <div className="flex items-center justify-center h-20 w-20 bg-white rounded-full max-md:hidden">
                 <img
                   src={settings.logoSystem}
                   alt=""

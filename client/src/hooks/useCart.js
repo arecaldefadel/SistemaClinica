@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function useCart (value){
+function useCart() {
   const [cartState, setCartState] = useState([]);
 
   const setCartValue = (value) => {
@@ -12,6 +12,6 @@ function useCart (value){
   };
 
   return { cartState, setCartValue };
-};
+}
 
 export default useCart;

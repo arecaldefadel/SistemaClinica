@@ -1,4 +1,4 @@
-import config from "../../config";
+import config from "../../config.js";
 import jwt from "jsonwebtoken";
 import { nvl } from "../../utils.js";
 

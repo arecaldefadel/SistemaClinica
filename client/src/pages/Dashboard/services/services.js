@@ -1,10 +1,14 @@
 //servicios del módulo.
-export const getServices = () => {
-  const options = {}
+import api from "@/utilities/apiClient";
 
-  return new Promise((resolve, reject) => {
-    axiosRequest(options).then(function (response) {
-      resolve(response);
+export const getPacientes = async ({ page = 1, pageSize = 10 }) => {
+  try {
+    const res = await api.get("/pacientes", {
+      params: { page, pageSize },
     });
-  });
-}
+    return res.data;
+  } catch (err) {
+    console.error("Error al obtener pacientes:", err.message);
+    throw err;
+  }
+};

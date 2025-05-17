@@ -5,15 +5,25 @@ import Sidebar from "./SideBar";
 import { nameSystem } from "@/settings.json";
 import { nvl } from "@/utilities";
 import { Dropdown, Modal, Input, Button } from "@/components/ui";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Layout = ({ menuUser }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const useSidebarHook = useSidebar();
   const [showProfile, setShowProfile] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const handleSideBar = () =>
     useSidebarHook.sidebarOpen
       ? useSidebarHook.hideSidebar()
       : useSidebarHook.showSidebar();
+
+  const handleLogOut = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   const userData = {
     nick: "Augusto Recalde",
@@ -85,7 +95,16 @@ const Layout = ({ menuUser }) => {
               >
                 Modificar perfil
               </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-[var(--gray)] text-[var(--button-danger)]">
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
+                onClick={() => setShowChangePassword(true)}
+              >
+                Cambiar contraseña
+              </button>
+              <button
+                onClick={handleLogOut}
+                className="w-full text-left px-4 py-2 hover:bg-[var(--gray)] text-[var(--button-danger)]"
+              >
                 Cerrar sesión
               </button>
             </Dropdown>
@@ -99,6 +118,56 @@ const Layout = ({ menuUser }) => {
           </Suspense>
         </main>
       </div>
+
+      {/* Modal para cambiar contraseña */}
+      <Modal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+        title="Modificar Contraseña"
+      >
+        <div className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4">
+            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
+              <Input
+                label={"Contraseña Actual"}
+                name={"password"}
+                type="password"
+                value={""}
+                className="max-sm:w-full"
+              />
+              <Input
+                label={"Nueva Contraseña"}
+                name={"newPassword"}
+                type="password"
+                value={""}
+                className="max-sm:w-full"
+              />
+            </div>
+            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
+              <Input
+                label={"Repetir Nueva Contraseña"}
+                name={"repeatNewPassword"}
+                type="password"
+                value={""}
+                className="max-sm:w-full"
+              />
+            </div>
+            <div className="flex flex-row">
+              <div className="flex gap-4">
+                <Button
+                  title="Cancelar"
+                  variant="danger"
+                  onClick={() => setShowChangePassword(false)}
+                />
+                <Button
+                  title="Guardar"
+                  onClick={() => setShowChangePassword(false)}
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+      </Modal>
       {/* Modal de Modificación de Perfil */}
       <Modal
         isOpen={showProfile}
@@ -128,19 +197,16 @@ const Layout = ({ menuUser }) => {
                 value={""}
                 className="max-sm:w-full"
               />
-              <Input
-                label={"Contraseña"}
-                name={"password"}
-                value={""}
-                className="max-sm:w-full"
-              />
             </div>
-            <div className="flex gap-4 flex-row justify-around">
+            <div className="flex flex-row">
               <div className="flex gap-4">
+                <Button
+                  title="Cancelar"
+                  variant="danger"
+                  onClick={() => setShowProfile(false)}
+                />
                 <Button title="Guardar" onClick={() => setShowProfile(false)} />
-                <Button title="Cancelar" variant="danger" onClick={() => setShowProfile(false)} />
               </div>
-              <Button title="Cambiar contraseña" variant="warning"  />
             </div>
           </form>
         </div>

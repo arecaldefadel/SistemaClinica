@@ -10,6 +10,7 @@ import {
   Dropdown,
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination"; // asumimos que tenés este hook
+import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
 
 const pacientes = [
   {
@@ -59,8 +60,19 @@ export default function Playground() {
     pacientesPagination.asignarCountRecords(100);
     pacientesPagination.asignarCountRows(5);
   });
+
+  const { showToast } = useToast();
+  const handleToast = ({ typeVar = "success" }) => {
+    showToast({
+      title: "Titulo de la notificación",
+      message: "Descripción de la notificación",
+      type: typeVar, // success, error, info
+      duration: 3000,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text)] p-8 space-y-10">
+    <div className="p-8  py-5">
       <h1 className="text-2xl font-bold mb-6">🎨 Playground de Componentes</h1>
 
       {/* Tooltip + Button */}
@@ -194,6 +206,28 @@ export default function Playground() {
             Cerrar sesión
           </button>
         </Dropdown>
+      </section>
+      <section className="rounded-lg bg-gray-200 p-4 shadow-md mb-6">
+        <h2 className="text-xl font-semibold mb-2">Toast</h2>
+        <p className="text-sm mb-2">
+          Los Toasts se muestran en la parte superior derecha de la pantalla.
+          Puedes personalizar su posición y duración.
+        </p>
+        <div className="flex flex-row gap-4">
+          <Button title="Mostrar Toast" onClick={handleToast} />
+          <Button
+            title="Mostrar Toast Warning"
+            onClick={() => handleToast({ typeVar: "warn" })}
+          />
+          <Button
+            title="Mostrar Toast Error"
+            onClick={() => handleToast({ typeVar: "error" })}
+          />
+          <Button
+            title="Mostrar Toast Info"
+            onClick={() => handleToast({ typeVar: "info" })}
+          />
+        </div>
       </section>
     </div>
   );
