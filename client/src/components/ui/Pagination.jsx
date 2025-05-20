@@ -26,8 +26,8 @@ const Pagination = ({ paginationHook }) => {
     <>
       <div className="table-footer">
       <div className="flex gap-2 justify-between items-center">
-          <div className="results-info">{resultados}</div>
-          <div className="results-info">Mostrar registros</div>
+          <div className="results-info text-nowrap">{resultados}</div>
+          <div hidden className="results-info">Mostrar registros</div>
           <select
             name=""
             className="border border-gray-300 rounded-md px-3 py-2 bg-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -49,8 +49,9 @@ const Pagination = ({ paginationHook }) => {
             <Icon iconName="angles-left" />
           </button>
           <button className="pagination-button prev" onClick={preview}> <Icon iconName="angle-left" /></button>
+          
           <button className="pagination-button active">{activate}</button>
-          <span> de {totalPage}</span>
+          <span className="text-nowrap"> de {totalPage}</span>
           <button className="pagination-button next" onClick={next}>
           <Icon iconName="angle-right" />
           </button>

@@ -33,8 +33,6 @@ const LogIn = () => {
     else {
       alert('Error al iniciar sesión')
     }
-    console.log(session)
-
   }
 
   return (

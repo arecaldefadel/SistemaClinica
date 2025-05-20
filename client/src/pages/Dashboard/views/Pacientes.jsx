@@ -2,70 +2,96 @@ import { useEffect, useState } from "react";
 import {
   Card,
   TitleContent,
-  TableV2 as Table,
+  Table,
   Modal,
   Input,
   Button,
+  Dropdown,
+  LookupField,
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
 import ModalNewUser from "@/components/users/ModalNewUser";
-import { getPacientes } from "../services/services";
+import { getObrasSociales, getPacientes } from "../services/services";
+import { findInObject, nvl } from "@/utilities";
 
 const Pacientes = () => {
   const pacientesPagination = usePagination();
-  const [listPacientes, setListPacientes] = useState([])
+  const [listPacientes, setListPacientes] = useState([]);
   const [showPacienteModal, setShowPacienteModal] = useState(false);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [pacienteSelected, setPacienteSelected] = useState(0)
+  
+  const obrasSocialesPagination = usePagination();
+  const [listObrasSociales, setObrasSociales] = useState([]);
+  const [isLoadingLookUpOS, setIsLoadingLookUpOS] = useState(false);
+  const [searchObraSocial, setSearchObraSocial] = useState('')
 
   useEffect(() => {
-    Promise.all([getPacientes({ page: 1, pageSize: 10 })]).then((res) => {
+    Promise.all([
+      getPacientes({ page: 1, pageSize: 10 }),
+    ]).then((res) => {
       const [resPaciente] = res;
-      pacientesPagination.asignarCountPage(resPaciente?.request?.meta?.totalPages || 0);
-      pacientesPagination.asignarCountRecords(resPaciente?.request?.meta?.total || 0);
+
+      pacientesPagination.asignarCountPage(
+        resPaciente?.request?.meta?.totalPages || 0
+      );
+      pacientesPagination.asignarCountRecords(
+        resPaciente?.request?.meta?.total || 0
+      );
       pacientesPagination.asignarCountRows(5);
-      setListPacientes(resPaciente?.request?.datos)
+      setListPacientes(resPaciente?.request?.datos);
       setIsLoadingTable(false);
     });
   }, [isLoadingTable]);
 
-  // const listPacientes = {
-  //   data: [
-  //     {
-  //       id: 1,
-  //       name: "Juan Perez",
-  //       phone: "123456789",
-  //       insurance: "OSDE",
-  //     },
-  //     {
-  //       id: 2,
-  //       name: "Maria Gomez",
-  //       phone: "987654321",
-  //       insurance: "Galeno",
-  //     },
-  //     {
-  //       id: 3,
-  //       name: "Pedro Martinez",
-  //       phone: "456789123",
-  //       insurance: "Sancor",
-  //     },
-  //   ],
-  // };
+  useEffect( () =>{
+        Promise.all([
+      getObrasSociales({
+        page: obrasSocialesPagination.actualPage,
+        pageSize: obrasSocialesPagination.countRows,
+        paramsFilter: [{ field: 'DESCRIPCION', value: searchObraSocial }]
+      }),
+    ]).then((res) => {
+      const [resObrasSociales] = res;
+      // Respuesta Obras Sociales.
+      obrasSocialesPagination.asignarCountPage(
+        resObrasSociales?.request.meta.totalPages
+      );
+      obrasSocialesPagination.asignarCountRecords(
+        resObrasSociales?.request.meta.total
+      );
+      obrasSocialesPagination.asignarCountRows(5);
+      setObrasSociales(resObrasSociales?.request?.datos);
+      setIsLoadingLookUpOS(false);
+    });
+  }, [obrasSocialesPagination.actualPage, obrasSocialesPagination.countRows, searchObraSocial])
+/*
+	id_cliente ID, 
+    nombre_personas NOMBRE, 
+    apellido_personas APELLIDO, 
+    telefono_cliente TELEFONO, 
+    os_abreviatura OBRA_SOCIAL
 
+*/
   const tableOptions = {
-    hidden: ["id"],
-    idTable: "id",
+    hidden: ['OS'],
+    idTable: "ID",
     th: {
-      id: { label: "Código", width: "auto" },
-      name: { label: "Nombre", width: "auto" },
-      phone: { label: "Teléfono", width: "auto" },
-      insurance: { label: "Obra Social", width: "auto" },
+      ID: { label: "Código", width: "auto" },
+      NOMBRE: { label: "Nombre", width: "auto" },
+      APELLIDO:{ label: "Apellido", with: "auto"},
+      TELEFONO: { label: "Teléfono", width: "auto" },
+      OBRA_SOCIAL: { label: "Obra Social", width: "auto" },
+      OS: { label: "OS_CODE", width: "auto" },
     },
     actions: [
       {
         icon: "edit",
         title: "Editar",
-        func: () => {
+        func: (id) => {
           setShowPacienteModal(true);
+          const paciente = findInObject(listPacientes, id, "ID") 
+          setPacienteSelected(paciente)
         },
       },
       {
@@ -76,6 +102,17 @@ const Pacientes = () => {
         },
       },
     ],
+  };
+
+  const tableOptions2 = {
+    hidden: ["id"],
+    idTable: "ID",
+    th: {
+      ID: { label: "Código", width: "auto" },
+      ABREV: { label: "Abrev", width: "auto" },
+      TIPO: { label: "Tipo", width: "auto" },
+    },
+    actions: [],
   };
 
   return (
@@ -94,6 +131,19 @@ const Pacientes = () => {
               placeholder="Nombre y Apellido"
             />
             <Input type="text" placeholder="Obra Social" />
+
+            <LookupField
+              data={listObrasSociales}
+              displayField="DESCRIPCION"
+              label="Obras Sociales"
+              loading={isLoadingLookUpOS}
+              onSelect={(row) => console.log(row)}
+              onSearch={(item) => setSearchObraSocial(item)}
+              options={tableOptions2}
+              pagination={obrasSocialesPagination}
+              hideLabel
+            />
+
             <Button
               title="Buscar"
               className="rounded-2xl"
@@ -104,7 +154,7 @@ const Pacientes = () => {
             <Button
               title="Agregar Paciente"
               className="rounded-2xl"
-              onClick={() => setShowPacienteModal(true)}
+              onClick={() => {setShowPacienteModal(true); setPacienteSelected({})}}
             />
           </div>
         </section>
@@ -112,7 +162,7 @@ const Pacientes = () => {
       <div className="flex flex-col gap-4">
         {/* Contentido */}
         <Table
-          data={listPacientes.data}
+          data={listPacientes}
           pagination={pacientesPagination}
           loading={isLoadingTable}
           options={tableOptions}
@@ -125,9 +175,11 @@ const Pacientes = () => {
           <Modal
             isOpen={showPacienteModal}
             onClose={() => setShowPacienteModal(false)}
-            title="Modificar Turno"
+            title={ nvl(pacienteSelected?.ID)? "Modificar paciente" : "Agregar paciente"}
           >
-            <ModalNewUser setShowModal={setShowPacienteModal} />
+            <ModalNewUser setShowModal={setShowPacienteModal} paciente={pacienteSelected} refresh={
+              () => {setIsLoadingTable(true); setShowPacienteModal(false)}
+            } />
           </Modal>
         )
         // Fin del modal

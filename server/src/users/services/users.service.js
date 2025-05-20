@@ -36,7 +36,7 @@ export const loginService = async ({ username, password }) => {
     const token = jwt.sign(datos, config.TOKEN_KEY, {
       expiresIn: "12h", // Con expiración en 12 horas
     });
-    // console.log(JSON.parse(token));
+
     return {
       error: false,
       msg: "",

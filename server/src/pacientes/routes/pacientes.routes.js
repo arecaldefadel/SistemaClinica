@@ -9,10 +9,15 @@ const router = express.Router();
 router.get("/ping", (req, res) => {
   res.status(200).send("Conexión exitosa");
 });
+router.get(
+  "/obras-sociales",
+  verifyToken,
+  PacientesController.getObrasSocialesController
+);
+
 router.get("/", verifyToken, PacientesController.getPacientesController);
 router.post("/", verifyToken, PacientesController.addPacienteController);
-// router.get("/:id", PacientesController);
-// router.put("/:id", PacientesController);
+router.put("/:id", PacientesController.updatePacienteController);
 // router.delete("/:id", PacientesController);
 
 export default router;

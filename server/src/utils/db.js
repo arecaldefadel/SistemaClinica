@@ -1,4 +1,5 @@
 import { pool } from "../db/connection.js";
+import { nvl } from "../utils.js";
 
 /**
  * Ejecuta una consulta SQL de forma segura
@@ -52,16 +53,16 @@ export const dbExecuteNamed = async (query, params = {}) => {
  * @param {Object} fields Campos por los que se quiere hacer el filtro
  * @returns {Object} Un objeto con queryFilterString y queryFiltersObject
  */
-export const generateParams = ({ paramasFilter = [], fields = {} }) => {
+export const generateParams = ({ paramsFilter, fields = {} }) => {
   let queryFilterString = "";
   let queryFiltersObject = {};
-  if (paramasFilter.length < 1)
+  if (nvl(paramsFilter, []).length < 1)
     return { queryFilterString, queryFiltersObject };
 
-  paramasFilter.forEach((param) => {
-    queryFilterString += ` AND ${fields[param.field]} LIKE :${
+  paramsFilter.forEach((param) => {
+    queryFilterString += ` and UPPER(${
       fields[param.field]
-    }`;
+    }) LIKE CONCAT('%', UPPER(:${fields[param.field]}), '%')`;
     queryFiltersObject[`${fields[param.field]}`] = param.value;
   });
 

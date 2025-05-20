@@ -23,7 +23,7 @@ export default function ToastContainer({ toasts }) {
                 ${t.type === 'info' ? 'bg-blue-300 border-2 border-blue-500' : ''}
               `}
             >
-              {t.title? <h2 className="text-lg font-bold">{'Titulo de toast'}</h2> : null }
+              {t.title? <h2 className="text-lg font-bold">{t.title}</h2> : null }
               {t.message}
             </div>
           ))}

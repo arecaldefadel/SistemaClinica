@@ -84,9 +84,10 @@ export const apiResponse = (res, status, message, data = null) => {
  * @param {Array} requiredFields Campos que son obligatorios en el form
  */
 export const validateFields = (body, requiredFields = []) => {
-  const missing = requiredFields.filter((f) => !(f in body));
+  const missing = requiredFields.find((f) => nvl(body[f]) === 0);
+  console.log(missing);
   return {
-    valid: missing.length === 0,
+    valid: nvl(missing) === 0,
     missing,
   };
 };

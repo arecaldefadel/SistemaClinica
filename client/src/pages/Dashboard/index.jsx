@@ -1,6 +1,6 @@
 // import { getServices } from "../services/services.js";
 import { useEffect, useState } from "react";
-import {Card ,TitleContent ,TableV2 as Table ,Modal } from "@/components/ui";
+import {Card ,TitleContent ,Table as Table ,Modal } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
 import useSession from "@/hooks/useSession";
 // import "@/assets/css/Dashboard.css";

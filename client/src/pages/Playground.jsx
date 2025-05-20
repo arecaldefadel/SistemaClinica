@@ -4,7 +4,7 @@ import {
   Tooltip,
   Card,
   TitleContent,
-  TableV2,
+  Table,
   Modal,
   Input,
   Dropdown,
@@ -158,7 +158,7 @@ export default function Playground() {
 
       <section className="rounded-lg bg-gray-200 p-4 shadow-md mb-6">
         <h1 className="text-2xl font-bold">🧪 Tabla de Pacientes</h1>
-        <TableV2
+        <Table
           data={pacientes}
           pagination={pacientesPagination}
           options={{

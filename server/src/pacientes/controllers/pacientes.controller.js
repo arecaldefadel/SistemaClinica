@@ -1,6 +1,8 @@
 import {
   addPacienteService,
+  getObrasSocialesServices,
   getPacientesService,
+  updatePacienteService,
 } from "../services/pacientes.service.js";
 import { apiResponse, validateFields } from "../../utils/index.js";
 
@@ -20,12 +22,20 @@ export const getPacientesController = async (req, res) => {
 };
 
 export const addPacienteController = async (req, res) => {
-  const { nombre, apellido, telefono } = req.body;
+  const { obraSocial, nombre, apellido, telefono } = req.body;
+  /*{
+    "obraSociales": 5,
+    "nombre": "Augusto",
+    "apellido": "Recalde",
+    "telefono": "3718526576"
+}
+*/
   const validadDatos = validateFields(req.body, [
     "nombre",
     "apellido",
     "telefono",
   ]);
+
   if (!validadDatos.valid)
     return apiResponse(
       res,
@@ -37,7 +47,34 @@ export const addPacienteController = async (req, res) => {
     nombre,
     apellido,
     telefono,
+    obraSocial,
   });
 
   return apiResponse(res, 204, `Paciente dado de alta correctamente.`);
+};
+
+export const updatePacienteController = async (req, res) => {
+  const idPaciente = req.params.id;
+  const data = req.body;
+
+  console.log({ idPaciente, data });
+
+  const result = await updatePacienteService(data);
+
+  return apiResponse(res, 204, "Usuario Actualizado.");
+  // if (!idPaciente) {
+  //   return apiResponse(res, 400, "ID requerido");
+  // }
+};
+
+export const getObrasSocialesController = async (req, res) => {
+  const { paramsFilter, page, pageSize } = req.query;
+
+  const request = await getObrasSocialesServices({
+    paramsFilter,
+    page,
+    pageSize,
+  });
+
+  return apiResponse(res, 200, "Ok", request);
 };

@@ -1,6 +1,7 @@
 import { nvl } from "../../utils.js";
 import { dbExecuteNamed, generateParams } from "../../utils/db.js";
 import { buildResponse } from "../../utils/index.js";
+import { pool } from "../../db/connection.js";
 
 export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
   const pageOffset = (page - 1) * pageSize;
@@ -14,16 +15,24 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
   const params = generateParams({ paramsFilter, fields });
 
   const queryPacientes = `
-    select id_cliente ID, nombre_personas NOMBRE, apellido_personas APELLIDO, telefono_cliente TELEFONO 
-    from clientes c 
-    inner join personas p on c.persona_id = p.id_personas
+    select 
+      id_cliente ID, 
+        nombre_personas NOMBRE, 
+        apellido_personas APELLIDO, 
+        telefono_cliente TELEFONO, 
+        os_abreviatura OBRA_SOCIAL,
+        id_os OS
+    from clientes
+    inner join personas on id_personas = clientes.persona_id
+    inner join obras_sociales on id_os = clientes.os_id
     ${params.queryFilterString}
     ORDER BY  apellido_personas  limit :pageSize offset :pageOffset`;
 
   const queryCountPacientes = `
         select count(*) COUNT
-    from clientes c 
-    inner join personas p on c.persona_id = p.id_personas
+    from clientes
+    inner join personas on id_personas = clientes.persona_id
+    inner join obras_sociales on id_os = clientes.os_id
     ${params.queryFilterString}
     `;
   try {
@@ -42,30 +51,133 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
   }
 };
 
-export const addPacienteService = async ({ nombre, apellido, telefono }) => {
-  console.log({ nombre, apellido, telefono });
+export const addPacienteService = async ({
+  nombre,
+  apellido,
+  telefono,
+  obraSocial,
+}) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  return { status: 204, message: "Creado correctamente" };
+    // 1. Insertar en personas
+    const [res1] = await connection.execute(
+      `INSERT INTO personas (nombre_personas, apellido_personas) VALUES (?, ?)`,
+      [nombre, apellido]
+    );
+
+    const personaId = res1.insertId; // ✅ este es el id generado
+
+    // 2. Insertar en clientes/pacientes
+    const [res2] = await connection.execute(
+      `INSERT INTO clientes (persona_id, telefono_cliente, os_id) VALUES (?, ?, ?)`,
+      [personaId, telefono, parseInt(obraSocial)]
+    );
+
+    await connection.commit();
+    return { status: "ok", personaId, pacienteId: res2.insertId };
+  } catch (e) {
+    await connection.rollback();
+    console.error("❌ Error al insertar paciente:", e.message);
+    return { status: "error", message: e.message };
+  } finally {
+    connection.release();
+  }
 };
 
-export const getObrasSociales = async ({ page, pageSize }) => {
+export const updatePacienteService = async ({
+  id,
+  nombre,
+  apellido,
+  telefono,
+  obraSocial,
+}) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Obtener persona_id
+    const [[cliente]] = await connection.execute(
+      "SELECT persona_id FROM clientes WHERE id_cliente = ?",
+      [id]
+    );
+
+    if (!cliente) {
+      throw new Error("Paciente no encontrado");
+    }
+
+    const personaId = cliente.persona_id;
+
+    // 2. Actualizar persona
+    await connection.execute(
+      "UPDATE personas SET nombre_personas = ?, apellido_personas = ? WHERE id_personas = ?",
+      [nombre, apellido, personaId]
+    );
+
+    // 3. Actualizar cliente
+    await connection.execute(
+      "UPDATE clientes SET telefono_cliente = ?, os_id = ? WHERE id_cliente = ?",
+      [telefono, obraSocial, id]
+    );
+
+    await connection.commit();
+    return { status: "ok", id: id };
+  } catch (err) {
+    await connection.rollback();
+    return { status: "error", message: err.message };
+  } finally {
+    connection.release();
+  }
+};
+
+export const getObrasSocialesServices = async ({
+  page,
+  pageSize,
+  paramsFilter,
+}) => {
   const pageOffset = (page - 1) * pageSize;
   // Se consulta el usuario y la contraseña
+  const fields = {
+    ID: "id_os",
+    DESCRIPCION: "os_descripcion",
+    ABREV: "os_abreviatura",
+    TIPO: "os_tipo",
+  };
+
+  let params = {
+    queryFilterString: "",
+    queryFiltersObject: {},
+  };
+  if (paramsFilter[0].field === "ID") {
+    params.queryFilterString = ` AND id_os = ${paramsFilter[0].value}`;
+    params.queryFiltersObject = { id_os: paramsFilter[0].value };
+  } else {
+    params = generateParams({ paramsFilter, fields });
+  }
+
   const queryPacientes = `
     SELECT id_os ID, os_descripcion DESCRIPCION, os_abreviatura ABREV, os_tipo TIPO 
     FROM  obras_sociales
-    ORDER BY  apellido_personas  limit :pageSize offset :pageOffset`;
+    where 1=1
+    ${params.queryFilterString}
+    ORDER BY  os_abreviatura  limit :pageSize offset :pageOffset`;
 
   const queryCountPacientes = `
-        select count(*) COUNT
+    select count(*) COUNT
     FROM  obras_sociales os
+    where 1=1
+    ${params.queryFilterString}
     `;
   try {
     const rows = await dbExecuteNamed(queryPacientes, {
       pageSize,
       pageOffset,
+      ...params.queryFiltersObject,
     });
-    const { data: rowsCount } = await dbExecuteNamed(queryCountPacientes, {});
+    const { data: rowsCount } = await dbExecuteNamed(queryCountPacientes, {
+      ...params.queryFiltersObject,
+    });
 
     const [{ COUNT: total }] = rowsCount;
     if (!rows.error) return buildResponse(rows.data, total, page, pageSize);

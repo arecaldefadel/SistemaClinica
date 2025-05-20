@@ -22,7 +22,7 @@ const Dropdown = ({ trigger, children }) => {
       </div>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black/5 z-50">
+        <div className="absolute mt-2 rounded-md shadow-lg bg-white ring-1 ring-black/5 z-50">
           <div className="py-1 text-sm text-[var(--text)]">{children}</div>
         </div>
       )}
