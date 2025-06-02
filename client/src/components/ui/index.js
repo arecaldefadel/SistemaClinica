@@ -15,3 +15,4 @@ export { default as TrTable } from "./TrTable";
 export { default as Dropdown } from "./Dropdown";
 export { default as ToastContainer } from "./ToastContainer";
 export { default as LookupField } from "./LookupField";
+export { default as Select } from "./Select";

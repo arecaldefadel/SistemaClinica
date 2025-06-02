@@ -17,7 +17,16 @@ router.get(
 
 router.get("/", verifyToken, PacientesController.getPacientesController);
 router.post("/", verifyToken, PacientesController.addPacienteController);
-router.put("/:id", PacientesController.updatePacienteController);
-// router.delete("/:id", PacientesController);
+router.put("/:id", verifyToken, PacientesController.updatePacienteController);
+router.delete(
+  "/:id",
+  verifyToken,
+  PacientesController.deletePacienteController
+);
+router.put(
+  "/:id/reactive",
+  verifyToken,
+  PacientesController.reactivePacienteController
+);
 
 export default router;

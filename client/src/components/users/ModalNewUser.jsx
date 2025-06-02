@@ -24,8 +24,7 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
   const [listObrasSociales, setObrasSociales] = useState([]);
   const [isLoadingLookUpOS, setIsLoadingLookUpOS] = useState(false);
   const [searchObraSocial, setSearchObraSocial] = useState({
-    field: isModify > 0 ? "ID" : "ABREV",
-    value: isModify > 0 ? paciente?.OS : "",
+    [isModify > 0 ? "ID" : "ABREV"] : isModify > 0 ? paciente?.OS : "",
   });
 
   const { showToast } = useToast();
@@ -35,7 +34,7 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
       getObrasSociales({
         page: obrasSocialesPagination.actualPage,
         pageSize: obrasSocialesPagination.countRows,
-        paramsFilter: [searchObraSocial],
+        paramsFilter: searchObraSocial,
       }),
     ]).then((res) => {
       const [resObrasSociales] = res;
@@ -73,8 +72,6 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
       request = await addPaciente({ nombre, apellido, telefono, obraSocial });
     }
 
-    console.log(request.status)
-
     if (request.status !== 204) {
       showToast({
         title: "Error",
@@ -94,7 +91,7 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
   };
 
   const handleSearchObraSocial = (item) => {
-    setSearchObraSocial({ field: "ABREV", value: item });
+    setSearchObraSocial({ "ABREV": item });
   };
 
   const oSocialesTableOptions = {

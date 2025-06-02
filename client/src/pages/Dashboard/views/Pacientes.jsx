@@ -6,29 +6,42 @@ import {
   Modal,
   Input,
   Button,
-  Dropdown,
+  Select,
   LookupField,
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
+import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
 import ModalNewUser from "@/components/users/ModalNewUser";
-import { getObrasSociales, getPacientes } from "../services/services";
+import {
+  deletePaciente,
+  getObrasSociales,
+  getPacientes,
+  reactivePaciente,
+} from "../services/services";
 import { findInObject, nvl } from "@/utilities";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const Pacientes = () => {
   const pacientesPagination = usePagination();
   const [listPacientes, setListPacientes] = useState([]);
   const [showPacienteModal, setShowPacienteModal] = useState(false);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [pacienteSelected, setPacienteSelected] = useState(0)
-  
+  const [pacienteSelected, setPacienteSelected] = useState(0);
+
   const obrasSocialesPagination = usePagination();
   const [listObrasSociales, setObrasSociales] = useState([]);
   const [isLoadingLookUpOS, setIsLoadingLookUpOS] = useState(false);
-  const [searchObraSocial, setSearchObraSocial] = useState('')
+  const [searchObraSocial, setSearchObraSocial] = useState("");
+  const [searchParams, setSearchParams] = useState({estado: 1});
+
+  const [showConfirmacionDelete, setShowConfirmacionDelete] = useState(false);
+  const [showConfirmacionReactive, setShowConfirmacionReactive] =
+    useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     Promise.all([
-      getPacientes({ page: 1, pageSize: 10 }),
+      getPacientes({ page: 1, pageSize: 10, paramsFilter: searchParams }),
     ]).then((res) => {
       const [resPaciente] = res;
 
@@ -44,12 +57,12 @@ const Pacientes = () => {
     });
   }, [isLoadingTable]);
 
-  useEffect( () =>{
-        Promise.all([
+  useEffect(() => {
+    Promise.all([
       getObrasSociales({
         page: obrasSocialesPagination.actualPage,
         pageSize: obrasSocialesPagination.countRows,
-        paramsFilter: [{ field: 'DESCRIPCION', value: searchObraSocial }]
+        paramsFilter: { ABREV: searchObraSocial },
       }),
     ]).then((res) => {
       const [resObrasSociales] = res;
@@ -64,41 +77,120 @@ const Pacientes = () => {
       setObrasSociales(resObrasSociales?.request?.datos);
       setIsLoadingLookUpOS(false);
     });
-  }, [obrasSocialesPagination.actualPage, obrasSocialesPagination.countRows, searchObraSocial])
-/*
-	id_cliente ID, 
-    nombre_personas NOMBRE, 
-    apellido_personas APELLIDO, 
-    telefono_cliente TELEFONO, 
-    os_abreviatura OBRA_SOCIAL
+  }, [
+    obrasSocialesPagination.actualPage,
+    obrasSocialesPagination.countRows,
+    searchObraSocial,
+  ]);
 
-*/
+  const handleSearchParams = ({ field, value }) => {
+    setSearchParams({ ...searchParams, [field]: value });
+  };
+  const handleDeletePaciente = async ({ id }) => {
+    const request = await deletePaciente({ id });
+    console.log(request);
+    if (request.status !== 204) {
+      showToast({
+        title: "Error",
+        message: request.message,
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
+    showToast({
+      title: `Paciente ${pacienteSelected?.NOMBRE} ${pacienteSelected?.APELLIDO}`,
+      message: "Eliminado correctamente",
+      type: "success",
+      duration: 3000,
+    });
+    setIsLoadingTable(true);
+  };
+
+  const handleReactivePaciente = async ({ id }) => {
+    const request = await reactivePaciente({ id }); 
+    if (request.status !== 204) {
+      showToast({
+        title: "Error",
+        message: request.message,
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
+    showToast({
+      title: `Paciente ${pacienteSelected?.NOMBRE} ${pacienteSelected?.APELLIDO}`,
+      message: "Reactivado correctamente",
+      type: "success",
+      duration: 3000,
+    });
+    setIsLoadingTable(true);
+  };
+
+  const classConditionsOptions = [
+    {
+      value: "Activo",
+      field: "ESTADO",
+      class: "bg-green-200",
+      oper: "=",
+    },
+    {
+      value: "Inactivo",
+      field: "ESTADO",
+      class: "bg-red-200",
+      oper: "=",
+    },
+  ];
+
   const tableOptions = {
-    hidden: ['OS'],
+    hidden: ["OS"],
     idTable: "ID",
     th: {
-      ID: { label: "Código", width: "auto" },
+      ID: { label: "Código", width: "50px" },
+      ESTADO: { label: "Estado", width: "50px" },
       NOMBRE: { label: "Nombre", width: "auto" },
-      APELLIDO:{ label: "Apellido", with: "auto"},
+      APELLIDO: { label: "Apellido", with: "auto" },
       TELEFONO: { label: "Teléfono", width: "auto" },
       OBRA_SOCIAL: { label: "Obra Social", width: "auto" },
       OS: { label: "OS_CODE", width: "auto" },
     },
+    classConditions: classConditionsOptions,
     actions: [
       {
         icon: "edit",
         title: "Editar",
         func: (id) => {
           setShowPacienteModal(true);
-          const paciente = findInObject(listPacientes, id, "ID") 
-          setPacienteSelected(paciente)
+          const paciente = findInObject(listPacientes, id, "ID");
+          setPacienteSelected(paciente);
         },
       },
       {
         icon: "trash",
         title: "Eliminar",
         func: (id) => {
-          alert(`Esta apunto de eliminar a ${id}`);
+          setShowConfirmacionDelete(true);
+          const paciente = findInObject(listPacientes, id, "ID");
+          setPacienteSelected(paciente);
+        },
+        condition: {
+          field: "ESTADO",
+          value: "Activo",
+          oper: "=",
+        },
+      },
+      {
+        icon: "refresh",
+        title: "Reactivar",
+        func: (id) => {
+          setShowConfirmacionReactive(true);
+          const paciente = findInObject(listPacientes, id, "ID");
+          setPacienteSelected(paciente);
+        },
+        condition: {
+          field: "ESTADO",
+          value: "Inactivo",
+          oper: "=",
         },
       },
     ],
@@ -129,32 +221,55 @@ const Pacientes = () => {
               name="paciente"
               type="text"
               placeholder="Nombre y Apellido"
+              onChange={(e) =>
+                handleSearchParams({ field: "paciente", value: e.target.value })
+              }
             />
-            <Input type="text" placeholder="Obra Social" />
 
             <LookupField
               data={listObrasSociales}
               displayField="DESCRIPCION"
               label="Obras Sociales"
               loading={isLoadingLookUpOS}
-              onSelect={(row) => console.log(row)}
+              onSelect={(row) =>
+                handleSearchParams({ field: "obraSocial", value: row })
+              }
               onSearch={(item) => setSearchObraSocial(item)}
               options={tableOptions2}
               pagination={obrasSocialesPagination}
               hideLabel
             />
 
+            <Select
+              name={"estado"}
+              items={[
+                { value: 1, name: "Activo" },
+                { value: 0, name: "Inactivo" },
+              ]}
+              value={searchParams?.estado || ''}
+              placeholder="Selec. estado"
+              onChange={(e) =>
+                handleSearchParams({ field: "estado", value: e.target.value })
+              }
+            />
+
             <Button
               title="Buscar"
               className="rounded-2xl"
-              onClick={() => setIsLoadingTable(true)}
+              onClick={() => {
+                console.log(searchParams);
+                setIsLoadingTable(true);
+              }}
             />
           </div>
           <div className="flex flex-row items-center gap-4">
             <Button
               title="Agregar Paciente"
               className="rounded-2xl"
-              onClick={() => {setShowPacienteModal(true); setPacienteSelected({})}}
+              onClick={() => {
+                setShowPacienteModal(true);
+                setPacienteSelected({});
+              }}
             />
           </div>
         </section>
@@ -175,15 +290,51 @@ const Pacientes = () => {
           <Modal
             isOpen={showPacienteModal}
             onClose={() => setShowPacienteModal(false)}
-            title={ nvl(pacienteSelected?.ID)? "Modificar paciente" : "Agregar paciente"}
+            title={
+              nvl(pacienteSelected?.ID)
+                ? "Modificar paciente"
+                : "Agregar paciente"
+            }
           >
-            <ModalNewUser setShowModal={setShowPacienteModal} paciente={pacienteSelected} refresh={
-              () => {setIsLoadingTable(true); setShowPacienteModal(false)}
-            } />
+            <ModalNewUser
+              setShowModal={setShowPacienteModal}
+              paciente={pacienteSelected}
+              refresh={() => {
+                setIsLoadingTable(true);
+                setShowPacienteModal(false);
+              }}
+            />
           </Modal>
         )
         // Fin del modal
       }
+
+      {showConfirmacionDelete && (
+        <ConfirmDialog
+          open={showConfirmacionDelete}
+          onCancel={() => setShowConfirmacionDelete(false)}
+          onConfirm={() => {
+            setShowConfirmacionDelete(false);
+            handleDeletePaciente({ id: pacienteSelected?.ID });
+          }}
+          title={`¿Eliminar al paciente ${pacienteSelected?.NOMBRE} ${pacienteSelected?.APELLIDO}?`}
+          message="Esta acción no se puede deshacer."
+          variant="danger"
+        />
+      )}
+      {showConfirmacionReactive && (
+        <ConfirmDialog
+          open={showConfirmacionReactive}
+          onCancel={() => setShowConfirmacionReactive(false)}
+          onConfirm={() => {
+            setShowConfirmacionReactive(false);
+            handleReactivePaciente({ id: pacienteSelected?.ID });
+          }}
+          title={`Reactivar al paciente ${pacienteSelected?.NOMBRE} ${pacienteSelected?.APELLIDO}?`}
+          message="Esta acción no se puede deshacer."
+          variant="danger"
+        />
+      )}
     </div>
   );
 };

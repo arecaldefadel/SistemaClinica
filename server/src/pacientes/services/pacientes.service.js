@@ -7,12 +7,17 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
   const pageOffset = (page - 1) * pageSize;
   // Se consulta el usuario y la contraseña
   const fields = {
-    NOMBRE: "nombre_personas",
-    APELLIDO: "apellido_personas",
-    TELEFONO: "telefono_cliente",
+    paciente: "nombre_personas",
+    obraSocial: "id_os",
   };
 
-  const params = generateParams({ paramsFilter, fields });
+  const paramEstadoValues = {
+    0: "AND clientes.fbaja_cliente IS NOT NULL",
+    1: "AND clientes.fbaja_cliente IS NULL",
+  };
+
+  let params = generateParams({ paramsFilter, fields });
+  let paramEstado = paramEstadoValues[paramsFilter?.estado] || "";
 
   const queryPacientes = `
     select 
@@ -21,10 +26,17 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
         apellido_personas APELLIDO, 
         telefono_cliente TELEFONO, 
         os_abreviatura OBRA_SOCIAL,
+        CASE 
+          WHEN fbaja_cliente is NULL then 'Activo'
+          WHEN fbaja_cliente is not NULL then 'Inactivo'
+        END ESTADO,
         id_os OS
     from clientes
     inner join personas on id_personas = clientes.persona_id
     inner join obras_sociales on id_os = clientes.os_id
+    WHERE 
+    1=1 
+    ${paramEstado}
     ${params.queryFilterString}
     ORDER BY  apellido_personas  limit :pageSize offset :pageOffset`;
 
@@ -33,6 +45,8 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
     from clientes
     inner join personas on id_personas = clientes.persona_id
     inner join obras_sociales on id_os = clientes.os_id
+    WHERE 1=1 
+    ${paramEstado}
     ${params.queryFilterString}
     `;
   try {
@@ -41,7 +55,9 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
       pageOffset,
       ...params.queryFiltersObject,
     });
-    const { data: rowsCount } = await dbExecuteNamed(queryCountPacientes, {});
+    const { data: rowsCount } = await dbExecuteNamed(queryCountPacientes, {
+      ...params.queryFiltersObject,
+    });
 
     const [{ COUNT: total }] = rowsCount;
     if (!rows.error) return buildResponse(rows.data, total, page, pageSize);
@@ -131,6 +147,68 @@ export const updatePacienteService = async ({
   }
 };
 
+export const deletePacienteService = async ({ id }) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Obtener persona_id
+    const [[cliente]] = await connection.execute(
+      "SELECT persona_id FROM clientes WHERE id_cliente = ?",
+      [id]
+    );
+
+    if (!cliente) {
+      throw new Error("Paciente no encontrado");
+    }
+
+    // 3. Eliminar cliente
+    await connection.execute(
+      "UPDATE clientes SET fbaja_cliente = NOW() WHERE id_cliente = ?",
+      [id]
+    );
+
+    await connection.commit();
+    return { error: false, id: id };
+  } catch (err) {
+    await connection.rollback();
+    return { error: true, message: err.message };
+  } finally {
+    connection.release();
+  }
+};
+
+export const reactivePacienteService = async ({ id }) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Obtener persona_id
+    const [[cliente]] = await connection.execute(
+      "SELECT persona_id FROM clientes WHERE id_cliente = ?",
+      [id]
+    );
+
+    if (!cliente) {
+      throw new Error("Paciente no encontrado");
+    }
+
+    // 3. Eliminar cliente
+    await connection.execute(
+      "UPDATE clientes SET fbaja_cliente = NULL WHERE id_cliente = ?",
+      [id]
+    );
+
+    await connection.commit();
+    return { error: false, id: id };
+  } catch (err) {
+    await connection.rollback();
+    return { error: true, message: err.message };
+  } finally {
+    connection.release();
+  }
+};
+
 export const getObrasSocialesServices = async ({
   page,
   pageSize,
@@ -149,9 +227,9 @@ export const getObrasSocialesServices = async ({
     queryFilterString: "",
     queryFiltersObject: {},
   };
-  if (paramsFilter[0].field === "ID") {
-    params.queryFilterString = ` AND id_os = ${paramsFilter[0].value}`;
-    params.queryFiltersObject = { id_os: paramsFilter[0].value };
+  if (nvl(paramsFilter?.ID) > 0) {
+    params.queryFilterString = ` AND id_os = ${paramsFilter?.ID}`;
+    params.queryFiltersObject = { id_os: paramsFilter?.ID };
   } else {
     params = generateParams({ paramsFilter, fields });
   }

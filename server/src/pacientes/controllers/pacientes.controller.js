@@ -1,15 +1,17 @@
 import {
   addPacienteService,
+  deletePacienteService,
   getObrasSocialesServices,
   getPacientesService,
+  reactivePacienteService,
   updatePacienteService,
 } from "../services/pacientes.service.js";
 import { apiResponse, validateFields } from "../../utils/index.js";
 
 export const getPacientesController = async (req, res) => {
-  const { page, pageSize } = req.query;
+  const { page, pageSize, paramsFilter } = req.query;
 
-  const request = await getPacientesService({ page, pageSize });
+  const request = await getPacientesService({ page, pageSize, paramsFilter });
 
   if (request?.status === "500") {
     return apiResponse(res, 500, request.message);
@@ -57,14 +59,53 @@ export const updatePacienteController = async (req, res) => {
   const idPaciente = req.params.id;
   const data = req.body;
 
-  console.log({ idPaciente, data });
-
-  const result = await updatePacienteService(data);
+  if (!idPaciente) {
+    return apiResponse(res, 400, "Paciente requerido");
+  }
+  try {
+    const result = await updatePacienteService(data);
+    if (result.error) {
+      return apiResponse(res, 500, "Error al eliminar.", result.message);
+    }
+  } catch (error) {
+    return apiResponse(res, 500, "Error al eliminar.", error);
+  }
 
   return apiResponse(res, 204, "Usuario Actualizado.");
-  // if (!idPaciente) {
-  //   return apiResponse(res, 400, "ID requerido");
-  // }
+};
+
+export const deletePacienteController = async (req, res) => {
+  const idPaciente = req.params.id;
+
+  if (!idPaciente) {
+    return apiResponse(res, 400, "Paciente requerido");
+  }
+  try {
+    const result = await deletePacienteService({ id: idPaciente });
+    if (result.error) {
+      return apiResponse(res, 500, "Error al eliminar.", result.message);
+    }
+  } catch (error) {
+    return apiResponse(res, 500, "Error al eliminar.", error);
+  }
+  return apiResponse(res, 204, "Usuario Actualizado.");
+};
+
+export const reactivePacienteController = async (req, res) => {
+  const idPaciente = req.params.id;
+
+  if (!idPaciente) {
+    return apiResponse(res, 400, "Paciente requerido");
+  }
+  try {
+    const result = await reactivePacienteService({ id: idPaciente });
+    if (result.error) {
+      return apiResponse(res, 500, "Error al eliminar.", result.message);
+    }
+  } catch (error) {
+    return apiResponse(res, 500, "Error al eliminar.", error);
+  }
+  return apiResponse(res, 204, "Usuario Actualizado.");
 };
 
 export const getObrasSocialesController = async (req, res) => {

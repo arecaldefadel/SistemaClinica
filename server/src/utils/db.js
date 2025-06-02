@@ -59,12 +59,10 @@ export const generateParams = ({ paramsFilter, fields = {} }) => {
   if (nvl(paramsFilter, []).length < 1)
     return { queryFilterString, queryFiltersObject };
 
-  paramsFilter.forEach((param) => {
-    queryFilterString += ` and UPPER(${
-      fields[param.field]
-    }) LIKE CONCAT('%', UPPER(:${fields[param.field]}), '%')`;
-    queryFiltersObject[`${fields[param.field]}`] = param.value;
-  });
-
+  for (const param in paramsFilter) {
+    if (!fields[param]) continue;
+    queryFilterString += ` and UPPER(${fields[param]}) LIKE CONCAT('%', UPPER(:${param}), '%')`;
+    queryFiltersObject[`${param}`] = paramsFilter[param];
+  }
   return { queryFilterString, queryFiltersObject };
 };

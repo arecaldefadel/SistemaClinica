@@ -8,18 +8,17 @@
     --secondary: #cee0bd;
     --accent: #547838;
     --muted: #bfbfbf;
-    --gray:#eeeeee;
+    --gray: #eeeeee;
 
     /* Buttons Variants */
-    --button: #735FA3;
+    --button: #735fa3;
     --button-hover: #9689cb;
 
-    --button-danger: #A35F97;
+    --button-danger: #a35f97;
     --button-danger-hover: #b97bb2;
 
     --button-warn: #bea034;
     --button-warn-hover: #cdb542;
-
   }
 }
 
@@ -35,13 +34,19 @@ input[type="number"] {
   appearance: textfield;
 }
 
-.active-item{
-  background-color: var(--secondary);
-  color: var(--accent);
-  border-radius: var(--radius-md)
+input[required]:after {
+  content: " *"; /* Añade un espacio antes del asterisco */
+  color: red;
+  font-weight: bold; /* Para mayor visibilidad */
 }
 
-.trSelected{
+.active-item {
   background-color: var(--secondary);
-  border-radius: var(--radius-md)
+  color: var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.trSelected {
+  background-color: var(--secondary);
+  border-radius: var(--radius-md);
 }

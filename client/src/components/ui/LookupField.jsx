@@ -39,7 +39,7 @@ export default function RelationPicker({
   }
 
   return (
-    <div className="w-full relative">
+    <div className="relative">
       {!hideLabel && (
         <label className="block mb-1 text-sm font-medium">{label}</label>
       )}
