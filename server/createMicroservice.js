@@ -1,21 +1,20 @@
 // scripts/createMicroservice.js
 import fs from "fs";
-import process from "process";
 
-let name = process.argv[2];
+export function createMicroservice(name) {
+  if (!name)
+    throw new Error("Debe especificar un nombre para el módulo nuevo.");
+  name = name.toLowerCase();
 
-if (!name) throw new Error("Debe especificar un nombre para el módulo nuevo.");
-name = name.toLowerCase();
+  if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+    throw new Error(
+      "Nombre inválido. Solo letras, números, guiones y guiones bajos permitidos."
+    );
+  }
 
-if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
-  throw new Error(
-    "Nombre inválido. Solo letras, números, guiones y guiones bajos permitidos."
-  );
-}
+  const basePath = `./src/${name}`;
 
-const basePath = `./src/${name}`;
-
-const getRouteFile = (n) => `import express from 'express';
+  const getRouteFile = (n) => `import express from 'express';
 import { getController } from '../controllers/${n}.controller.js';
 
 const router = express.Router();
@@ -26,9 +25,9 @@ router.get('/', getController);
 export default router;
 `;
 
-const getControllerFile = (
-  n
-) => `import { getData } from '../services/${n}.service.js';
+  const getControllerFile = (
+    n
+  ) => `import { getData } from '../services/${n}.service.js';
 
 export const getController = async (req, res) => {
   const { id } = req.body;
@@ -41,8 +40,8 @@ export const getController = async (req, res) => {
 };
 `;
 
-const getServiceFile =
-  () => `import { getConnection, sql } from '../../db/connection.js';
+  const getServiceFile =
+    () => `import { getConnection, sql } from '../../db/connection.js';
 const pool = await getConnection();
 
 export const getData = async (id) => {
@@ -61,8 +60,8 @@ export const getData = async (id) => {
 };
 `;
 
-const getMiddlewareFile =
-  () => `export const validation = async (req, res, next) => {
+  const getMiddlewareFile =
+    () => `export const validation = async (req, res, next) => {
   try {
     // Validación personalizada
     return next();
@@ -72,11 +71,10 @@ const getMiddlewareFile =
 };
 `;
 
-const createFile = (file, content) => {
-  fs.writeFileSync(file, content, "utf8");
-};
+  const createFile = (file, content) => {
+    fs.writeFileSync(file, content, "utf8");
+  };
 
-try {
   if (fs.existsSync(basePath)) {
     throw new Error("Ya existe un módulo con ese nombre.");
   }
@@ -101,29 +99,28 @@ try {
   );
 
   // Post-create: actualizar ApiGateway
-  const apiPath = "./src/ApiGateway.js";
+  const apiPath = "./src/apiGateway.js";
   const routeName = name.toLowerCase();
-  const importLine = `import ${routeName}_router from "./${routeName}/routes/${routeName}.routes.js";\n`;
-  const useLine = `  router.use("/${routeName}", ${routeName}_router);\n`;
+  const importLine = `import ${routeName}_router from "./${routeName}/routes/${routeName}.routes.js";`;
+  const useLine = `  router.use("/${routeName}", ${routeName}_router);`;
 
   let apiCode = fs.readFileSync(apiPath, "utf8");
 
   if (!apiCode.includes(importLine)) {
-    const importMarker = 'import express from "express";\n';
-    apiCode = apiCode.replace(importMarker, importMarker + importLine);
+    const importMarker = 'import express from "express";';
+    apiCode = apiCode.replace(importMarker, importMarker + "\n" + importLine);
   }
 
   if (!apiCode.includes(useLine)) {
-    const useMarker = "  // Rutas de cada servicio\n";
-    apiCode = apiCode.replace(useMarker, useMarker + useLine);
+    const useMarker = "  // Rutas de cada servicio";
+    apiCode = apiCode.replace(useMarker, useMarker + "\n" + useLine);
   }
 
   fs.writeFileSync(apiPath, apiCode, "utf8");
-  console.log(`✅ ApiGateway actualizado con la ruta '/${routeName}'`);
 
   console.log(
-    `\n===============================\n¡Servicio '${name}' creado correctamente!\n===============================`
+    `=========================================
+  ¡Servicio '${name}' creado correctamente!
+  =========================================`
   );
-} catch (err) {
-  console.error("❌ Error al crear el microservicio:", err.message);
 }
