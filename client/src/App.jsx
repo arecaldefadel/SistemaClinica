@@ -8,7 +8,6 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core";
 import * as Icons from "@fortawesome/free-solid-svg-icons";
 import settiongs from './settings.json'
-import Home from "@/pages/Home";
 import Default from "@/pages/Default";
 import Layout from "@/components/ui/Layout";
 import Playground from "@/pages/Playground";
@@ -81,7 +80,6 @@ const router = createHashRouter(
         {arrayRutas}
       </Route>
       <Route path="/playground" element={<Playground />} />
-      <Route path="/" element={<Home />}></Route>
       <Route path="/login" element={<LogIn />}></Route>
       <Route path="*" element={<Default />}></Route>
     </Route>

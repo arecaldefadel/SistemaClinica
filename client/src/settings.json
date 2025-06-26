@@ -29,15 +29,6 @@
       "VISIBLE": 1,
       "ICONO": "calendar-days",
       "MENU": "1"
-    },
-    {
-      "CODIGO": "4",
-      "PATHNAME": "playground",
-      "componentPath": "menu-playground",
-      "DESCRIPCION": "Compoententes",
-      "VISIBLE": 1,
-      "ICONO": "laptop-code",
-      "MENU": "1"
     }
   ]
 }

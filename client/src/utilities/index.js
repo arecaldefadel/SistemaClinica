@@ -185,21 +185,28 @@ export const menorADiez = (number) => {
 };
 
 export const formatDateArg = (dateParam, orderReverse = false) => {
-  const date = new Date(dateParam);
-
-  const dia = menorADiez(
-    typeof dateParam === "string" ? date.getUTCDate() : date.getDate()
-  );
-  const mes = menorADiez(
-    typeof dateParam === "string" ? date.getUTCMonth() + 1 : date.getMonth() + 1
-  );
-  const anio =
-    typeof dateParam === "string" ? date.getUTCFullYear() : date.getFullYear();
+  let date = null; //new Date(dateParam);
+  let result = "";
   if (orderReverse) {
-    return `${anio}-${mes}-${dia}`;
+    const [day, month, year] = dateParam.split("-");
+    result = `${year}-${month}-${day}`;
   } else {
-    return `${dia}-${mes}-${anio}`;
+    date = new Date(dateParam);
+    const dia = menorADiez(
+      typeof dateParam === "string" ? date.getUTCDate() : date.getDate()
+    );
+    const mes = menorADiez(
+      typeof dateParam === "string"
+        ? date.getUTCMonth() + 1
+        : date.getMonth() + 1
+    );
+    const anio =
+      typeof dateParam === "string"
+        ? date.getUTCFullYear()
+        : date.getFullYear();
+    result = `${dia}-${mes}-${anio}`;
   }
+  return result;
 };
 
 /** Función para transformar el nombre de ícono en el formato admisible por FontAwesome **/

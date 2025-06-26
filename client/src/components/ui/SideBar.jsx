@@ -14,6 +14,26 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
     setPath(window.location.hash.split("#")[1])
   })
 
+    useEffect(() => {
+    // Buscamos el ítem del menú que matchee con el path actual
+    const matchedItem = menu.find((item) => {
+      const urlItem = item.url === "/" ? "/" : `/${item.url}`;
+      return path === urlItem;
+    });
+
+    if (matchedItem) {
+      const newPath =
+        matchedItem.url === "/" ? "/" : `/${matchedItem.url}`;
+
+      // Solo actualizamos si es diferente al oldPath para evitar renders innecesarios
+      if (oldPath !== newPath) {
+        setOldPath(newPath);
+      }
+    }
+  }, [menu, path, oldPath, setOldPath]);
+
+
+
   const handledSelect = (selectedItem, url ) => {
     setPath(url)
     const activateItem = selectedItem.classList.contains("active-item");
@@ -53,17 +73,11 @@ const Sidebar = ({ menu = [], title = "", hook = {}, handle = () => {} }) => {
           </div>
           <nav className="flex flex-col">
             {menu.map((item, i) => {
-              let classActive = "";
-              const urlItem = `/${item.url}`;
-
-              if (path === urlItem) {
-                classActive = "active-item";
-                setOldPath(urlItem);
-              } else {
-                if (oldPath === urlItem) {
-                  classActive = "active-item";
-                }
-              }
+          const urlItem = item.url === "/" ? "/" : `/${item.url}`;
+          const classActive =
+            !path || path === urlItem || oldPath === urlItem
+              ? "active-item"
+              : "";
 
               return (
                 <Link to={item.url} onClick={(e) => handledSelect(e.target, item.url, item.title)} key={i}>

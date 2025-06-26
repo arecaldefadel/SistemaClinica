@@ -68,8 +68,3 @@ export const getObrasSociales = async ({ page, pageSize, paramsFilter }) => {
     throw err;
   }
 };
-
-// ======================================================
-export const getTurnos = () => {};
-export const deleteTurno = () => {};
-export const updateTurno = () => {};

@@ -1,104 +1,130 @@
-// import { getServices } from "../services/services.js";
 import { useEffect, useState } from "react";
-import {Card ,TitleContent ,Table as Table ,Modal } from "@/components/ui";
+import { Card, TitleContent, Table as Table, Modal } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
 import useSession from "@/hooks/useSession";
-// import "@/assets/css/Dashboard.css";
+import { getStats, getTurnos, setTurnoAtendido } from "./services/turnos.services";
+import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
+import { findInObject } from "@/utilities";
+import dayjs from "dayjs";
+dayjs.locale("es");
 
 const Index = () => {
   useSession();
-  const pacientesPagination = usePagination();
-  const [showPacienteModal, setShowPacienteModal] = useState(false);
-
+  const [turnos, setTurnos] = useState([]);
+  const turnosPagination = usePagination();
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [ stats, setStats ] = useState({ cantPacientes : 0, cantidadNuevos: 0, cantidadTurnos: 0, cantidadTurnosPend: 0 })
+  const { showToast } = useToast();
+  const fechaActual = dayjs()
+  
   useEffect(() => {
-    pacientesPagination.asignarCountPage(10);
-    pacientesPagination.asignarCountRecords(100);
-    pacientesPagination.asignarCountRows(5);
-  });
+    // page: paginationForms?.actualPage ?? 1, limit: parseInt(paginationForms?.countRows) ?? 10,
+    Promise.all([
+      getTurnos({
+        page: turnosPagination.actualPage,
+        pageSize: turnosPagination.countRows,
+        paramsFilter: { fecha: fechaActual.format('YYYY-MM-DD') }
+      }),
+    ]).then((res) => {
+      const [resTurno] = res;
+      const { datos, meta } = resTurno.request;
+      setTurnos(datos || []);
+      turnosPagination.asignarCountPage(meta?.totalPages || 0);
+      turnosPagination.asignarCountRecords(meta?.total || 0);
+      turnosPagination.asignarCountRows(5);
+      setIsLoadingTable(false);
+    });
+  }, [isLoadingTable, turnosPagination.actualPage, turnosPagination.countRows]);
 
-  const listPacientes = {
-    data: [
-      {
-        id: 1,
-        atentido: 'No',
-        name: "Juan Perez",
-        phone: "123456789",
-        insurance: "OSDE",
-        date: "2023-10-01",
+  useEffect( () =>{
+    // page: paginationForms?.actualPage ?? 1, limit: parseInt(paginationForms?.countRows) ?? 10,
+    Promise.all([
+      getStats(),
+    ]).then((res) => {
+      const [resStats] = res;
+      setStats(resStats.request)
+    });
+  }, [isLoadingTable])
 
-      },
-      {
-        id: 2,
-        atentido: 'No',
-        name: "Maria Gomez",
-        phone: "987654321",
-        insurance: "Galeno",
-        date: "2023-10-02",
-
-      },
-      {
-        id: 3,
-        atentido: 'Si',
-        name: "Pedro Martinez",
-        phone: "456789123",
-        insurance: "Sancor",
-        date: "2023-10-03",
-        
-      },
-    ],
+  const handleSetAtendido = async ({ id, atendido }) => {
+    const turno = findInObject(turnos, id, "ID");
+    const request = await setTurnoAtendido({ id, atendido });
+    if (request.status !== 204) {
+      showToast({
+        title: "Error",
+        message: request.message,
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
+    showToast({
+      title: `Turno ${turno?.NOMBRE} ${turno?.APELLIDO}`,
+      message: "Actualizado correctamente",
+      type: "success",
+      duration: 3000,
+    });
+    setIsLoadingTable(true);
   };
 
   /** Sirve para agregar una clase a un registro en base a un valor de un campo  */
   const classConditionsOptions = [
     {
       value: "Si",
-      field: "atentido",
+      field: "ATENDIDO",
       class: "bg-green-200",
       oper: "=",
     },
     {
       value: "No",
-      field: "atentido",
+      field: "ATENDIDO",
       class: "bg-red-200",
       oper: "=",
-    }
+    },
   ];
 
   const tableOptions = {
-    hidden: ['id'],
-    idTable: "id",
+    hidden: ["OS", "ID", "PACIENTE"],
+    idTable: "ID",
     th: {
-      id: { label: 'Código', width: '5px' },
-      atentido: { label: 'Antendido', width: '50px' },
-      name: { label: 'Nombre', width: '200px' },
-      phone: { label: 'Teléfono', width: '150px' },
-      insurance: { label: 'Obra Social', width: '180px' },
-      date: { label: 'Fecha', width: '120px' },
+      ID: { label: "Código", width: "50px" },
+      ATENDIDO: { label: "Atendido", width: "50px" },
+      NOMBRE: { label: "Nombre", width: "auto" },
+      APELLIDO: { label: "Apellido", with: "auto" },
+      HORA: { label: "Hora", width: "auto" },
+      TELEFONO: { label: "Teléfono", width: "auto" },
+      OBRA_SOCIAL: { label: "Obra Social", width: "auto" },
+      OS: { label: "OS_CODE", width: "auto" },
+      PACIENTE: { label: "", with: "auto" },
     },
     classConditions: classConditionsOptions,
     actions: [
       {
-        icon: 'check',
+        icon: "check",
         title: "Atendido",
-        func: (id) => { alert('Marcar como antendido a '+ id) },
+        func: async (id) => {
+          await handleSetAtendido({ id, atendido: 1 });
+        },
         condition: {
-          field: "atentido",
+          field: "ATENDIDO",
           value: "No",
           oper: "=",
         },
       },
       {
-        icon: 'cancel',
+        icon: "cancel",
         title: "No Atendido",
-        func: (id) => { alert('Marcar como no antendido a '+ id) },
+        func: async (id) => {
+          await handleSetAtendido({ id, atendido: 0 });
+        },
         condition: {
-          field: "atentido",
+          field: "ATENDIDO",
           value: "Si",
           oper: "=",
         },
       },
     ],
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4 w-full">
@@ -112,65 +138,29 @@ const Index = () => {
           <Card title={"Total Pacientes"}>
             <div className="flex flex-col">
               <span className="text-4xl max-sm:text-2xl  font-semibold text-[var(--accent)]">
-                30
+                {stats.cantPacientes}
               </span>
-              <span className=""> + 3 más que el mes pasado.</span>
+              <span className=""> + {stats.cantidadNuevos} más que el mes pasado.</span>
             </div>
           </Card>
           <Card title={"Turnos de hoy"}>
             <div className="flex flex-col">
               <span className="text-4xl max-sm:text-2xl font-semibold text-[var(--accent)]">
-                5
+                {stats.cantidadTurnos}
               </span>
-              <span className=""> 1 pendiente</span>
+              <span className=""> {stats.cantidadTurnosPend} pendiente</span>
             </div>
           </Card>
         </div>
         {/* Contentido */}
         <Table
-          data={listPacientes.data}
-          pagination={pacientesPagination}
+          data={turnos}
+          pagination={turnosPagination}
           loading={false}
-          options = {tableOptions}
+          options={tableOptions}
         />
         <div className="gap-4 w-full"></div>
       </div>
-      {
-        // Modal para modificar turno de paciente
-        showPacienteModal && (
-          <Modal
-            isOpen={showPacienteModal}
-            onClose={() => setShowPacienteModal(false)}
-            title="Modificar Turno"
-          >
-            <div className="flex flex-col gap-4">
-              <form className="flex flex-col gap-4">
-                <label htmlFor="paciente">Paciente</label>
-                <input
-                  type="text"
-                  id="paciente"
-                  name="paciente"
-                  className="border border-gray-300 rounded-lg p-2"
-                />
-                <label htmlFor="fecha">Fecha</label>
-                <input
-                  type="date"
-                  id="fecha"
-                  name="fecha"
-                  className="border border-gray-300 rounded-lg p-2"
-                />
-                <button
-                  type="submit"
-                  className="bg-[var(--accent)] text-white rounded-lg p-2"
-                >
-                  Guardar
-                </button>
-              </form>
-            </div>
-          </Modal>
-        )
-        // Fin del modal
-      }
     </div>
   );
 };

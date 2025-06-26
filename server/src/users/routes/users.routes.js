@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/ping", (req, res) => {
   res.status(200).send("Conexión exitosa");
 });
-router.post("/login", loginController);
+router.post("/inicio", loginController);
 router.get("/me", verifyToken, (req, res) => {
   res.status(200).send("Conexión exitosa");
 });

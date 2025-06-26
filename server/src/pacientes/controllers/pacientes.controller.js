@@ -24,18 +24,12 @@ export const getPacientesController = async (req, res) => {
 };
 
 export const addPacienteController = async (req, res) => {
-  const { obraSocial, nombre, apellido, telefono } = req.body;
-  /*{
-    "obraSociales": 5,
-    "nombre": "Augusto",
-    "apellido": "Recalde",
-    "telefono": "3718526576"
-}
-*/
+  const { obraSocial, nombre, apellido, documento, telefono } = req.body;
   const validadDatos = validateFields(req.body, [
     "nombre",
     "apellido",
     "telefono",
+    "documento",
   ]);
 
   if (!validadDatos.valid)
@@ -49,6 +43,7 @@ export const addPacienteController = async (req, res) => {
     nombre,
     apellido,
     telefono,
+    documento,
     obraSocial,
   });
 

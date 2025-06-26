@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import settings from '@/settings.json'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth.js'
+import BraveWarning from '@/components/turnos/BraveWarning'
 
 const LogIn = () => {
   const { login } = useAuth();
@@ -37,6 +38,7 @@ const LogIn = () => {
 
   return (
     <>
+    <BraveWarning/>
     <section>
       <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--primary)]">
         <div className="flex items-center justify-center w-24 h-24 mb-8 bg-white rounded-full shadow-lg">

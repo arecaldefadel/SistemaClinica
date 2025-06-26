@@ -17,7 +17,7 @@ import {
   getObrasSociales,
   getPacientes,
   reactivePaciente,
-} from "../services/services";
+} from "../services/pacientes.services";
 import { findInObject, nvl } from "@/utilities";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
@@ -41,21 +41,17 @@ const Pacientes = () => {
 
   useEffect(() => {
     Promise.all([
-      getPacientes({ page: 1, pageSize: 10, paramsFilter: searchParams }),
+      getPacientes({ page: pacientesPagination.actualPage, pageSize: pacientesPagination.countRows, paramsFilter: searchParams }),
     ]).then((res) => {
       const [resPaciente] = res;
+      const { datos, meta } = resPaciente.request
 
-      pacientesPagination.asignarCountPage(
-        resPaciente?.request?.meta?.totalPages || 0
-      );
-      pacientesPagination.asignarCountRecords(
-        resPaciente?.request?.meta?.total || 0
-      );
-      pacientesPagination.asignarCountRows(5);
-      setListPacientes(resPaciente?.request?.datos);
+      pacientesPagination.asignarCountPage(meta?.totalPages || 0);
+      pacientesPagination.asignarCountRecords(meta?.total || 0);
+      setListPacientes(datos);
       setIsLoadingTable(false);
     });
-  }, [isLoadingTable]);
+  }, [isLoadingTable, pacientesPagination.countRows, pacientesPagination.actualPage]);
 
   useEffect(() => {
     Promise.all([
@@ -66,15 +62,11 @@ const Pacientes = () => {
       }),
     ]).then((res) => {
       const [resObrasSociales] = res;
+      const { datos, meta } = resObrasSociales.request
       // Respuesta Obras Sociales.
-      obrasSocialesPagination.asignarCountPage(
-        resObrasSociales?.request.meta.totalPages
-      );
-      obrasSocialesPagination.asignarCountRecords(
-        resObrasSociales?.request.meta.total
-      );
-      obrasSocialesPagination.asignarCountRows(5);
-      setObrasSociales(resObrasSociales?.request?.datos);
+      obrasSocialesPagination.asignarCountPage(meta.totalPages || 1);
+      obrasSocialesPagination.asignarCountRecords(meta.total || 0);
+      setObrasSociales(datos || []);
       setIsLoadingLookUpOS(false);
     });
   }, [
@@ -150,6 +142,7 @@ const Pacientes = () => {
       ESTADO: { label: "Estado", width: "50px" },
       NOMBRE: { label: "Nombre", width: "auto" },
       APELLIDO: { label: "Apellido", with: "auto" },
+      DOCUMENTO: { label: "Documento", with: "auto" },
       TELEFONO: { label: "Teléfono", width: "auto" },
       OBRA_SOCIAL: { label: "Obra Social", width: "auto" },
       OS: { label: "OS_CODE", width: "auto" },
@@ -216,7 +209,7 @@ const Pacientes = () => {
       {/* Filtros */}
       <Card>
         <section className="flex flex-col gap-3 ">
-          <div className="flex flex-row items-center gap-4">
+          <div className="flex flex-row items-center gap-4 flex-wrap">
             <Input
               name="paciente"
               type="text"
@@ -225,7 +218,14 @@ const Pacientes = () => {
                 handleSearchParams({ field: "paciente", value: e.target.value })
               }
             />
-
+            <Input
+              name="telefono"
+              type="text"
+              placeholder="Teléfono"
+              onChange={(e) =>
+                handleSearchParams({ field: "telefono", value: e.target.value })
+              }
+            />
             <LookupField
               data={listObrasSociales}
               displayField="DESCRIPCION"

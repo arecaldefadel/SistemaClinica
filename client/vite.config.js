@@ -5,6 +5,12 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    host: true, // Esto permite que escuche conexiones externas
+    allowedHosts: [
+      "e87c-45-182-29-51.ngrok-free.app", // Agregá tu URL pública actual de ngrok
+    ],
+  },
   resolve: {
     alias: {
       "@": new URL("./src", import.meta.url), // Alias '@' apunta a 'src'

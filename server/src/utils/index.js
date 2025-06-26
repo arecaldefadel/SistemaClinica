@@ -85,9 +85,22 @@ export const apiResponse = (res, status, message, data = null) => {
  */
 export const validateFields = (body, requiredFields = []) => {
   const missing = requiredFields.find((f) => nvl(body[f]) === 0);
-  console.log(missing);
   return {
     valid: nvl(missing) === 0,
     missing,
   };
+};
+
+export const isDateValid = (dateStr) => {
+  return !isNaN(new Date(dateStr));
+};
+
+export const isTimeValid = (str) =>
+  /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(str);
+
+export const esFechaAnterior = (fecha) => {
+  const hoy = new Date();
+  const fechaComparar = new Date(fecha);
+
+  return fechaComparar.getTime() < hoy.getTime();
 };

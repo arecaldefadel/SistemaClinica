@@ -4,27 +4,27 @@ import {
   addPaciente,
   getObrasSociales,
   updatePaciente,
-} from "@/pages/Dashboard/services/services";
+} from "@/pages/Dashboard/services/pacientes.services";
 import usePagination from "@/hooks/usePagination";
 import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
 import { nvl } from "@/utilities";
 const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
   // Formulario de carga de datos para los pacientes.
-  const isModify = nvl(paciente?.ID) > 0 
+  const isModify = nvl(paciente?.ID) > 0;
   const [datosSubmit, setDatosSubmit] = useState({
     nombre: isModify ? paciente?.NOMBRE : "",
     apellido: isModify ? paciente?.APELLIDO : "",
     telefono: isModify ? paciente?.TELEFONO : "",
     descriOS: isModify ? paciente?.OBRA_SOCIAL : "",
+    documento: isModify ? paciente?.DOCUMENTO : "",
     obraSocial: isModify ? paciente?.OS : "",
   });
-
 
   const obrasSocialesPagination = usePagination();
   const [listObrasSociales, setObrasSociales] = useState([]);
   const [isLoadingLookUpOS, setIsLoadingLookUpOS] = useState(false);
   const [searchObraSocial, setSearchObraSocial] = useState({
-    [isModify > 0 ? "ID" : "ABREV"] : isModify > 0 ? paciente?.OS : "",
+    [isModify > 0 ? "ID" : "ABREV"]: isModify > 0 ? paciente?.OS : "",
   });
 
   const { showToast } = useToast();
@@ -64,12 +64,19 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { nombre, apellido, telefono, obraSocial } = datosSubmit
-    let request = {}
-    if(isModify){
-      request = await updatePaciente({ id: paciente?.ID, nombre, apellido, telefono, obraSocial })
-    }else{
-      request = await addPaciente({ nombre, apellido, telefono, obraSocial });
+    const { nombre, apellido, telefono, documento, obraSocial } = datosSubmit;
+    let request = {};
+    if (isModify) {
+      request = await updatePaciente({
+        id: paciente?.ID,
+        nombre,
+        apellido,
+        telefono,
+        documento,
+        obraSocial,
+      });
+    } else {
+      request = await addPaciente({ nombre, apellido, telefono, documento, obraSocial });
     }
 
     if (request.status !== 204) {
@@ -82,16 +89,20 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
       return;
     }
     showToast({
-      title: isModify? `Paciente ${paciente?.NOMBRE} ${paciente?.APELLIDO}` : "Nuevo paciente",
-      message: isModify? "Actualizado correctamente" : "Agregado correctamente",
+      title: isModify
+        ? `Paciente ${paciente?.NOMBRE} ${paciente?.APELLIDO}`
+        : "Nuevo paciente",
+      message: isModify
+        ? "Actualizado correctamente"
+        : "Agregado correctamente",
       type: "success",
       duration: 3000,
     });
-    refresh()
+    refresh();
   };
 
   const handleSearchObraSocial = (item) => {
-    setSearchObraSocial({ "ABREV": item });
+    setSearchObraSocial({ ABREV: item });
   };
 
   const oSocialesTableOptions = {
@@ -122,6 +133,13 @@ const ModalNewUser = ({ setShowModal, paciente, refresh }) => {
                 label={"Apellido"}
                 name={"apellido"}
                 value={datosSubmit?.apellido}
+                className="max-sm:w-full"
+                onChange={(e) => handleChange(e.target)}
+              />
+              <Input
+                label={"Documento"}
+                name={"documento"}
+                value={datosSubmit?.documento}
                 className="max-sm:w-full"
                 onChange={(e) => handleChange(e.target)}
               />

@@ -1,7 +1,7 @@
 const API_CORE = "http://localhost:3002/api/v1";
 
 export const ENDPOINTS = {
-  LOGIN: `${API_CORE}/users/login`,
+  LOGIN: `${API_CORE}/users/inicio`,
   LOGOUT: `${API_CORE}/users/logout`,
   REGISTER: `${API_CORE}/users/register`,
   ME: `${API_CORE}/users/me`,

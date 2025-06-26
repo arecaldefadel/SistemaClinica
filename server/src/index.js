@@ -1,4 +1,4 @@
-import routerGetway from "./apiGetway.js";
+import routerGetway from "./apiGateway.js";
 import app from "./app.js";
 
 app.listen(

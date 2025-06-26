@@ -26,7 +26,7 @@ const Layout = ({ menuUser }) => {
   };
 
   const userData = {
-    nick: "Augusto Recalde",
+    nick: localStorage.getItem("nombreUser"),
   };
 
   const generateIconUser = () => {

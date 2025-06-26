@@ -90,7 +90,7 @@ const Table = ({
 
   const headers = () => {
     const thArray = Object.entries(options.th);
-    const thClass = "bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200 px-4 py-2";
+    const thClass = "bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200 px-2 py-2";
     return (
       <tr>
         {checkSelect.activate && (

@@ -7,8 +7,9 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
   const pageOffset = (page - 1) * pageSize;
   // Se consulta el usuario y la contraseña
   const fields = {
-    paciente: "nombre_personas",
+    paciente: "CONCAT(nombre_personas, ' ', apellido_personas)",
     obraSocial: "id_os",
+    telefono: "telefono_cliente",
   };
 
   const paramEstadoValues = {
@@ -23,9 +24,13 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
     select 
       id_cliente ID, 
         nombre_personas NOMBRE, 
-        apellido_personas APELLIDO, 
+        apellido_personas APELLIDO,
+        documento_personas DOCUMENTO, 
         telefono_cliente TELEFONO, 
-        os_abreviatura OBRA_SOCIAL,
+        CASE 
+			  WHEN os_abreviatura IS NULL THEN 'PARTICULAR'
+            ELSE os_abreviatura
+		    END OBRA_SOCIAL,
         CASE 
           WHEN fbaja_cliente is NULL then 'Activo'
           WHEN fbaja_cliente is not NULL then 'Inactivo'
@@ -33,7 +38,7 @@ export const getPacientesService = async ({ page, pageSize, paramsFilter }) => {
         id_os OS
     from clientes
     inner join personas on id_personas = clientes.persona_id
-    inner join obras_sociales on id_os = clientes.os_id
+    left outer join obras_sociales on id_os = clientes.os_id
     WHERE 
     1=1 
     ${paramEstado}
@@ -71,6 +76,7 @@ export const addPacienteService = async ({
   nombre,
   apellido,
   telefono,
+  documento,
   obraSocial,
 }) => {
   const connection = await pool.getConnection();
@@ -79,8 +85,8 @@ export const addPacienteService = async ({
 
     // 1. Insertar en personas
     const [res1] = await connection.execute(
-      `INSERT INTO personas (nombre_personas, apellido_personas) VALUES (?, ?)`,
-      [nombre, apellido]
+      `INSERT INTO personas (nombre_personas, apellido_personas, documento_personas) VALUES (?, ?, ?)`,
+      [nombre, apellido, documento]
     );
 
     const personaId = res1.insertId; // ✅ este es el id generado
@@ -107,12 +113,12 @@ export const updatePacienteService = async ({
   nombre,
   apellido,
   telefono,
+  documento,
   obraSocial,
 }) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-
     // 1. Obtener persona_id
     const [[cliente]] = await connection.execute(
       "SELECT persona_id FROM clientes WHERE id_cliente = ?",
@@ -127,8 +133,8 @@ export const updatePacienteService = async ({
 
     // 2. Actualizar persona
     await connection.execute(
-      "UPDATE personas SET nombre_personas = ?, apellido_personas = ? WHERE id_personas = ?",
-      [nombre, apellido, personaId]
+      "UPDATE personas SET nombre_personas = ?, apellido_personas = ?, documento_personas = ? WHERE id_personas = ?",
+      [nombre, apellido, documento, personaId]
     );
 
     // 3. Actualizar cliente

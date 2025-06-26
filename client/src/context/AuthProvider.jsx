@@ -23,13 +23,14 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const result = res.data;
-      const { token, user } = result.data;
-      setUser(user);
+      const { token, nombre, apellido } = result.data;
+      setUser(`${nombre} ${apellido}`);
       setToken(token);
       localStorage.setItem("token", token);
+      localStorage.setItem("nombreUser", `${nombre} ${apellido}`);
       return res.data;
     } catch (error) {
-      return error.response.data;
+      return error;
     }
   };
 
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("nombreUser")
     return true;
   };
 
