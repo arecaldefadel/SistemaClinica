@@ -1,11 +1,11 @@
 // Estructura base para contextos en un sistema moderno con React
 
 // ✅ ThemeContext.js
-// import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  const [theme, setTheme] = useState("light");
+  const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -49,7 +49,7 @@ export const useSettings = () => useContext(SettingsContext);
 // import { createContext, useContext, useState } from 'react';
 export const LanguageContext = createContext();
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('es');
+  const [language, setLanguage] = useState("es");
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
