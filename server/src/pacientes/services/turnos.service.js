@@ -4,6 +4,9 @@ import { buildResponse } from "../../utils/index.js";
 import { pool } from "../../db/connection.js";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import isoWeek from "dayjs/plugin/isoWeek.js";
+
+dayjs.extend(isoWeek);
 dayjs.extend(customParseFormat);
 
 export const getTurnosPorMesService = async ({ paramsFilter }) => {

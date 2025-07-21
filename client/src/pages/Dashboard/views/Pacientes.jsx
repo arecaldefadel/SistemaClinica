@@ -10,7 +10,7 @@ import {
   LookupField,
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
-import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
+import { useToast } from "@/hooks/useToast";
 import ModalNewUser from "@/components/users/ModalNewUser";
 import {
   deletePaciente,
@@ -32,7 +32,7 @@ const Pacientes = () => {
   const [listObrasSociales, setObrasSociales] = useState([]);
   const [isLoadingLookUpOS, setIsLoadingLookUpOS] = useState(false);
   const [searchObraSocial, setSearchObraSocial] = useState("");
-  const [searchParams, setSearchParams] = useState({estado: 1});
+  const [searchParams, setSearchParams] = useState({ estado: 1 });
 
   const [showConfirmacionDelete, setShowConfirmacionDelete] = useState(false);
   const [showConfirmacionReactive, setShowConfirmacionReactive] =
@@ -41,17 +41,25 @@ const Pacientes = () => {
 
   useEffect(() => {
     Promise.all([
-      getPacientes({ page: pacientesPagination.actualPage, pageSize: pacientesPagination.countRows, paramsFilter: searchParams }),
+      getPacientes({
+        page: pacientesPagination.actualPage,
+        pageSize: pacientesPagination.countRows,
+        paramsFilter: searchParams,
+      }),
     ]).then((res) => {
       const [resPaciente] = res;
-      const { datos, meta } = resPaciente.request
+      const { datos, meta } = resPaciente.request;
 
       pacientesPagination.asignarCountPage(meta?.totalPages || 0);
       pacientesPagination.asignarCountRecords(meta?.total || 0);
       setListPacientes(datos);
       setIsLoadingTable(false);
     });
-  }, [isLoadingTable, pacientesPagination.countRows, pacientesPagination.actualPage]);
+  }, [
+    isLoadingTable,
+    pacientesPagination.countRows,
+    pacientesPagination.actualPage,
+  ]);
 
   useEffect(() => {
     Promise.all([
@@ -62,7 +70,7 @@ const Pacientes = () => {
       }),
     ]).then((res) => {
       const [resObrasSociales] = res;
-      const { datos, meta } = resObrasSociales.request
+      const { datos, meta } = resObrasSociales.request;
       // Respuesta Obras Sociales.
       obrasSocialesPagination.asignarCountPage(meta.totalPages || 1);
       obrasSocialesPagination.asignarCountRecords(meta.total || 0);
@@ -80,7 +88,6 @@ const Pacientes = () => {
   };
   const handleDeletePaciente = async ({ id }) => {
     const request = await deletePaciente({ id });
-    console.log(request);
     if (request.status !== 204) {
       showToast({
         title: "Error",
@@ -100,7 +107,7 @@ const Pacientes = () => {
   };
 
   const handleReactivePaciente = async ({ id }) => {
-    const request = await reactivePaciente({ id }); 
+    const request = await reactivePaciente({ id });
     if (request.status !== 204) {
       showToast({
         title: "Error",
@@ -246,7 +253,7 @@ const Pacientes = () => {
                 { value: 1, name: "Activo" },
                 { value: 0, name: "Inactivo" },
               ]}
-              value={searchParams?.estado || ''}
+              value={searchParams?.estado || ""}
               placeholder="Selec. estado"
               onChange={(e) =>
                 handleSearchParams({ field: "estado", value: e.target.value })
@@ -294,8 +301,7 @@ const Pacientes = () => {
               nvl(pacienteSelected?.ID)
                 ? "Modificar paciente"
                 : "Agregar paciente"
-            }
-          >
+            }>
             <ModalNewUser
               setShowModal={setShowPacienteModal}
               paciente={pacienteSelected}

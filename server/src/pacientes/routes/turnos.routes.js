@@ -7,8 +7,8 @@ import { validarTurno } from "../middleware/validarTurno.js";
 const router = express.Router();
 
 // Endpoints
-router.get("/stats", TurnosController.getStatsController);
-router.get("/diferencia", TurnosController.diferenciaEntreTurnos);
+router.get("/stats", verifyToken, TurnosController.getStatsController);
+router.get("/diferencia", verifyToken, TurnosController.diferenciaEntreTurnos);
 router.get("/porMes", verifyToken, TurnosController.getTurnosPorMesController);
 router.get("/", verifyToken, TurnosController.getTurnosController);
 router.post(

@@ -2,6 +2,8 @@ import express from "express";
 import users_router from "./users/routes/users.routes.js";
 import pacientes_router from "./pacientes/routes/pacientes.routes.js";
 import turnos_router from "./pacientes/routes/turnos.routes.js";
+import pagos_router from "./pacientes/routes/pagos.routes.js";
+
 /*
   funcion router madre para el manejo
   de las rutas internas de cada servicio
@@ -16,6 +18,7 @@ const routerGetway = (app) => {
   router.use("/users", users_router);
   router.use("/pacientes", pacientes_router);
   router.use("/turnos", turnos_router);
+  router.use("/pagos", pagos_router);
 };
 
 export default routerGetway;

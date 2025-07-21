@@ -10,9 +10,9 @@ export const loginService = async ({ username, password }) => {
     const [rows] = await pool.execute(
       `SELECT 
         username, id_user, nombre_personas, apellido_personas, password_users 
-       FROM users 
-       INNER JOIN personas ON users.persona_id = personas.id_personas
-       WHERE username = :username`,
+        FROM users 
+        INNER JOIN personas ON users.persona_id = personas.id_personas
+        WHERE username = :username`,
       { username }
     );
 

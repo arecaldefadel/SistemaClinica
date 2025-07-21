@@ -29,6 +29,15 @@
       "VISIBLE": 1,
       "ICONO": "calendar-days",
       "MENU": "1"
+    },
+    {
+      "CODIGO": "4",
+      "PATHNAME": "pagos",
+      "componentPath": "menu-pagos",
+      "DESCRIPCION": "Pagos",
+      "VISIBLE": 1,
+      "ICONO": "money-check-dollar",
+      "MENU": "1"
     }
   ]
 }
