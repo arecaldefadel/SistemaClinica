@@ -14,7 +14,7 @@ const ModalNuevoTurno = ({ setShowModal, turno, refresh }) => {
   const isModify = nvl(turno?.ID) > 0;
   const [datosSubmit, setDatosSubmit] = useState({
     paciente: isModify ? turno?.PACIENTE : "",
-    fecha: isModify ? formatDateArg(turno?.FECHA, true) : (turno?.FECHA || ""),
+    fecha: isModify ? formatDateArg(turno?.FECHA, true) : turno?.FECHA || "",
     hora: isModify ? turno?.HORA : "",
   });
 
@@ -42,7 +42,11 @@ const ModalNuevoTurno = ({ setShowModal, turno, refresh }) => {
 
   useEffect(() => {
     Promise.all([
-      getPacientes({ page: 1, pageSize: 10, paramsFilter: searchParams }),
+      getPacientes({
+        page: pacientesPagination.actualPage,
+        pageSize: pacientesPagination.countRows,
+        paramsFilter: searchParams,
+      }),
     ]).then((res) => {
       const [resPaciente] = res;
 
@@ -52,14 +56,18 @@ const ModalNuevoTurno = ({ setShowModal, turno, refresh }) => {
       pacientesPagination.asignarCountRecords(
         resPaciente?.request?.meta?.total || 0
       );
-      pacientesPagination.asignarCountRows(5);
       setListPacientes(resPaciente?.request?.datos);
       setIsLoadingLookUpOS(false);
     });
-  }, [isLoadingLookUpOS]);
+  }, [
+    isLoadingLookUpOS,
+    pacientesPagination.countRows,
+    pacientesPagination.actualPage,
+  ]);
 
   const handleSearchParams = ({ field, value }) => {
     setSearchParams({ ...searchParams, [field]: value });
+    setIsLoadingLookUpOS(true);
   };
 
   const { showToast } = useToast();
@@ -119,7 +127,9 @@ const ModalNuevoTurno = ({ setShowModal, turno, refresh }) => {
                   handleChange({ name: "paciente", value: row })
                 }
                 value={isModify ? `${turno.NOMBRE} ${turno.APELLIDO}` : ""}
-                onSearch={(item) => handleSearchParams(item)}
+                onSearch={(item) =>
+                  handleSearchParams({ field: "paciente", value: item })
+                }
                 options={pacienteTableOptions}
                 pagination={pacientesPagination}
               />

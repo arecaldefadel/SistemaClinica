@@ -29,14 +29,15 @@ export default function RelationPicker({
   const onSearchPress = (key) => {
     if (key === "Enter") {
       onSearch(search);
+      console.log(search);
       setOpen(false);
     }
   };
 
-  const handleOnChange = (e)=>{
-    if(nvl(e.target.value) === 0) onSelect('');
-    setSearch(e.target.value)
-  }
+  const handleOnChange = (e) => {
+    if (nvl(e.target.value) === 0) onSelect("");
+    setSearch(e.target.value);
+  };
 
   return (
     <div className="relative">
@@ -55,8 +56,7 @@ export default function RelationPicker({
             onFocus={() => setOpen(true)}
             onKeyPress={(e) => onSearchPress(e.key)}
           />
-        }
-      >
+        }>
         <div className="max-h-60 overflow-y-auto border rounded-md bg-white shadow-md p-2">
           <Table
             data={data}

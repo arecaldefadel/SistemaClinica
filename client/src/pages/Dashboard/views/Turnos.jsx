@@ -31,14 +31,17 @@ const Turnos = () => {
       <section className="flex flex-col gap-3 ">
         <div className="flex flex-row items-center gap-4">
           <Button
-            title="Agregar Turno"
+            title="Agregar"
+            icon={"plus"}
+            variant="success"
             className="rounded-2xl"
             onClick={() => {
               setShowTurnoModal(true);
             }}
           />
           <Button
-            title="Buscar turno"
+            title="Buscar"
+            icon={"search"}
             className="rounded-2xl"
             onClick={() => {
               setShowTablaTurnos(true);
@@ -57,8 +60,7 @@ const Turnos = () => {
             isOpen={showTurnoModal}
             onClose={() => setShowTurnoModal(false)}
             title={"Agregar turno"}
-            size={"lg"}
-          >
+            size={"lg"}>
             <ModalNuevoTurno
               setShowModal={setShowTurnoModal}
               refresh={() => {
@@ -75,9 +77,8 @@ const Turnos = () => {
           isOpen={showTablaTurnos}
           onClose={() => setShowTablaTurnos(false)}
           title={"Turnos"}
-          size={"lg"}
-        >
-          <ModalSearhTurnos/>
+          size={"lg"}>
+          <ModalSearhTurnos />
         </Modal>
       ) : null}
     </div>

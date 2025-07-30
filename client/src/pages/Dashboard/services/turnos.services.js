@@ -72,3 +72,13 @@ export const getStats = async () => {
     throw err;
   }
 };
+
+export const sendNotification = async () => {
+  try {
+    const res = await api.get("/ws/notifications");
+    return res.data;
+  } catch (err) {
+    console.error("Error al obtener pacientes:", err.message);
+    throw err;
+  }
+};

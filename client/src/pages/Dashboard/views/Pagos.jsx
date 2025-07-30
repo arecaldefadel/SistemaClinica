@@ -202,23 +202,26 @@ const Pagos = () => {
                 handleSearchParams({ field: "estado", value: e.target.value })
               }
             />
-
-            <Button
-              title="Buscar"
-              className="rounded-2xl"
-              onClick={() => {
-                console.log(searchParams);
-                setIsLoadingTable(true);
-              }}
-            />
           </div>
           <div className="flex flex-row items-center gap-4">
             <Button
-              title="Agregar Pago"
+              title="Agregar"
+              icon={"plus"}
+              variant="success"
               className="rounded-2xl"
               onClick={() => {
                 setShowPagoModal(true);
                 setPagoSelected({});
+              }}
+            />
+
+            <Button
+              title="Buscar"
+              icon={"search"}
+              className="rounded-2xl"
+              onClick={() => {
+                console.log(searchParams);
+                setIsLoadingTable(true);
               }}
             />
           </div>

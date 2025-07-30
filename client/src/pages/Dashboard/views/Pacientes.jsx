@@ -259,23 +259,25 @@ const Pacientes = () => {
                 handleSearchParams({ field: "estado", value: e.target.value })
               }
             />
-
-            <Button
-              title="Buscar"
-              className="rounded-2xl"
-              onClick={() => {
-                console.log(searchParams);
-                setIsLoadingTable(true);
-              }}
-            />
           </div>
           <div className="flex flex-row items-center gap-4">
             <Button
-              title="Agregar Paciente"
+              title="Agregar"
+              icon={"plus"}
+              variant="success"
               className="rounded-2xl"
               onClick={() => {
                 setShowPacienteModal(true);
                 setPacienteSelected({});
+              }}
+            />
+            <Button
+              title="Buscar"
+              icon={"search"}
+              className="rounded-2xl"
+              onClick={() => {
+                console.log(searchParams);
+                setIsLoadingTable(true);
               }}
             />
           </div>

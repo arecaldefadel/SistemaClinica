@@ -1,6 +1,10 @@
 import express from "express";
-import { loginController } from "../controllers/users.controller.js";
-import { verifyToken } from "../middlewares/users.middleware.js";
+import * as userController from "../controllers/users.controller.js";
+import {
+  verifyToken,
+  validarNewPassword,
+  loginLimiter,
+} from "../middlewares/users.middleware.js";
 
 // requiero el ruteador
 const router = express.Router();
@@ -9,14 +13,21 @@ const router = express.Router();
 router.get("/ping", (req, res) => {
   res.status(200).send("Conexión exitosa");
 });
-router.post("/inicio", loginController);
+router.post("/inicio", loginLimiter, userController.loginController);
 router.get("/me", verifyToken, (req, res) => {
   res.status(200).send("Conexión exitosa");
 });
+
+router.put(
+  "/reset-password",
+  verifyToken,
+  validarNewPassword,
+  userController.changePassController
+);
+
 /*
 
 ("/register", verifyToken, () => {})
-("/reset-password", verifyToken, () => {})
 ("/get-user", verifyToken, () => {})
 ("/get-users", verifyToken, () => {})
 ("/update-user", verifyToken, () => {})

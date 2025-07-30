@@ -10,19 +10,13 @@ import {
   getTurnosPorMes,
   setTurnoAtendido,
 } from "@/pages/Dashboard/services/turnos.services";
-import {
-  Card,
-  Table,
-  Modal,
-  Input,
-  Button,
-} from "@/components/ui";
+import { Card, Table, Modal, Input, Button } from "@/components/ui";
 import ModalNuevoTurno from "@/components/turnos/ModalNuevoTurno";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 dayjs.locale("es");
 
-const CalendarioTurnos = ({refresh}) => {
+const CalendarioTurnos = ({ refresh }) => {
   const [mesActual, setMesActual] = useState(dayjs());
   const [turnos, setTurnos] = useState([]);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
@@ -32,21 +26,24 @@ const CalendarioTurnos = ({refresh}) => {
   const [searchParams, setSearchParams] = useState({});
   const [turnoSelected, setTurnoSelected] = useState(0);
   const [showTurnoModal, setShowTurnoModal] = useState(false);
-  const [ showTurnosModal, setShowTurnosModal ] = useState(false)
+  const [showTurnosModal, setShowTurnosModal] = useState(false);
   const [showConfirmacionDelete, setShowConfirmacionDelete] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
     Promise.all([
-      getTurnosPorMes({ page: 1, pageSize: 10, paramsFilter: {fecha: mesActual.format('YYYY-MM')} }),
+      getTurnosPorMes({
+        page: 1,
+        pageSize: 10,
+        paramsFilter: { fecha: mesActual.format("YYYY-MM") },
+      }),
     ]).then((res) => {
       const [resTurno] = res;
       const { datos } = resTurno.request;
-        setTurnos(datos || []);
-
-    })
+      setTurnos(datos || []);
+    });
   }, [mesActual, isLoadingTable, refresh]);
-  
+
   const diasDelMes = () => {
     const inicio = mesActual.startOf("month").startOf("week");
     const fin = mesActual.endOf("month").endOf("week");
@@ -70,23 +67,22 @@ const CalendarioTurnos = ({refresh}) => {
     setDiaSeleccionado(null);
   };
 
-
-
   const handleSearchParams = ({ field, value }) => {
     setSearchParams({ ...searchParams, [field]: value });
   };
 
-  const handleCargarTurnos = async ({ fecha }) =>{
-
-    const resTurno =  await getTurnos({ page: 1, pageSize: 10, paramsFilter: { fecha } })
-          turnosPagination.asignarCountPage(
-        resTurno?.request?.meta?.totalPages || 0
-      );
-      turnosPagination.asignarCountRecords(resTurno?.request?.meta?.total || 0);
-      turnosPagination.asignarCountRows(5);
-      setListTurnos(resTurno?.request?.datos);
-      setIsLoadingTable(false);
-  }
+  const handleCargarTurnos = async ({ fecha }) => {
+    const resTurno = await getTurnos({
+      page: 1,
+      pageSize: 10,
+      paramsFilter: { fecha },
+    });
+    turnosPagination.asignarCountPage(resTurno?.request?.meta?.totalPages || 0);
+    turnosPagination.asignarCountRecords(resTurno?.request?.meta?.total || 0);
+    turnosPagination.asignarCountRows(5);
+    setListTurnos(resTurno?.request?.datos);
+    setIsLoadingTable(false);
+  };
 
   const handleDeleteTurno = async ({ id }) => {
     const request = await deleteTurno({ id });
@@ -190,7 +186,7 @@ const CalendarioTurnos = ({refresh}) => {
         func: async (id) => {
           handleSelectRow(id);
           await handleSetAtendido({ id, atendido: 1 });
-          await handleCargarTurnos({fecha: diaSeleccionado})
+          await handleCargarTurnos({ fecha: diaSeleccionado });
         },
         condition: {
           field: "ATENDIDO",
@@ -204,7 +200,7 @@ const CalendarioTurnos = ({refresh}) => {
         func: async (id) => {
           handleSelectRow(id);
           await handleSetAtendido({ id, atendido: 0 });
-          await handleCargarTurnos({fecha: diaSeleccionado})
+          await handleCargarTurnos({ fecha: diaSeleccionado });
         },
         condition: {
           field: "ATENDIDO",
@@ -220,12 +216,13 @@ const CalendarioTurnos = ({refresh}) => {
       <div className="flex items-center justify-between mb-4">
         <button
           className="text-sm text-gray-600 cursor-pointer hover:text-gray-900"
-          onClick={() => cambiarMes(-1)}
-        >
+          onClick={() => cambiarMes(-1)}>
           ← Mes anterior
         </button>
         <h2 className="text-lg font-bold">{mesActual.format("MMMM YYYY")}</h2>
-        <button className="text-sm text-gray-600 cursor-pointer hover:text-gray-900" onClick={() => cambiarMes(1)}>
+        <button
+          className="text-sm text-gray-600 cursor-pointer hover:text-gray-900"
+          onClick={() => cambiarMes(1)}>
           Mes siguiente →
         </button>
       </div>
@@ -255,85 +252,88 @@ const CalendarioTurnos = ({refresh}) => {
                     : "hover:bg-gray-200"
                 }
               `}
-              onClick={() => {  
-                handleCargarTurnos({fecha: fechaStr})
-                setShowTurnosModal(true)
-                setDiaSeleccionado(fechaStr)}
-              }
-            >
+              onClick={() => {
+                handleCargarTurnos({ fecha: fechaStr });
+                setShowTurnosModal(true);
+                setDiaSeleccionado(fechaStr);
+              }}>
               {dia.date()}
             </div>
           );
         })}
       </div>
-{/* 
+      {/* 
       {diaSeleccionado && (
  
       )} */}
 
-            {
+      {
         // Modal para modificar turno de turno
         showTurnosModal && (
           <Modal
             isOpen={showTurnosModal}
             onClose={() => setShowTurnosModal(false)}
-            title={`Turnos del ${dayjs(diaSeleccionado).format('dddd DD [de] MMMM')}`}
-            size={"full"}
-          >
-       <div className="rounded-md bg-white shadow">
-          <Card>
-            <section className="flex flex-col gap-3 ">
-              <div className="flex flex-row items-center gap-4 flex-wrap">
-                <Input
-                  name="paciente"
-                  type="text"
-                  placeholder="Nombre y Apellido"
-                  onChange={(e) =>
-                    handleSearchParams({
-                      field: "paciente",
-                      value: e.target.value,
-                    })
-                  }
-                />
-                <Input
-                  name="telefono"
-                  type="text"
-                  placeholder="Teléfono"
-                  onChange={(e) =>
-                    handleSearchParams({
-                      field: "telefono",
-                      value: e.target.value,
-                    })
-                  }
-                />
-                <Button
-                  title="Buscar"
-                  className="rounded-2xl"
-                  onClick={() => {
-                    setIsLoadingTable(true);
-                  }}
-                />
-              </div>
-              <div className="flex flex-row items-center gap-4">
-                <Button
-                  title="Agregar Turno"
-                  className="rounded-2xl"
-                  onClick={() => {
-                    setShowTurnoModal(true);
-                    setTurnoSelected({});
-                  }}
-                />
-              </div>
-            </section>
-          </Card>
-          <Table
-            data={listTurnos}
-            pagination={turnosPagination}
-            loading={isLoadingTable}
-            options={tableOptions}
-            selectedFunction={handleSelectRow}
-          />
-        </div>
+            title={`Turnos del ${dayjs(diaSeleccionado).format(
+              "dddd DD [de] MMMM"
+            )}`}
+            size={"full"}>
+            <div className="rounded-md bg-white shadow">
+              <Card>
+                <section className="flex flex-col gap-3 ">
+                  <div className="flex flex-row items-center gap-4 flex-wrap">
+                    <Input
+                      name="paciente"
+                      type="text"
+                      placeholder="Nombre y Apellido"
+                      onChange={(e) =>
+                        handleSearchParams({
+                          field: "paciente",
+                          value: e.target.value,
+                        })
+                      }
+                    />
+                    <Input
+                      name="telefono"
+                      type="text"
+                      placeholder="Teléfono"
+                      onChange={(e) =>
+                        handleSearchParams({
+                          field: "telefono",
+                          value: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-row items-center gap-4">
+                    <Button
+                      title="Agregar"
+                      icon={"plus"}
+                      variant="success"
+                      className="rounded-2xl"
+                      onClick={() => {
+                        setShowTurnoModal(true);
+                        setTurnoSelected({});
+                      }}
+                    />
+                    <Button
+                      title="Buscar"
+                      icon={"search"}
+                      className="rounded-2xl"
+                      onClick={() => {
+                        setIsLoadingTable(true);
+                      }}
+                    />
+                  </div>
+                </section>
+              </Card>
+              <Table
+                data={listTurnos}
+                pagination={turnosPagination}
+                loading={isLoadingTable}
+                options={tableOptions}
+                selectedFunction={handleSelectRow}
+              />
+            </div>
           </Modal>
         )
         // Fin del modal
@@ -344,14 +344,19 @@ const CalendarioTurnos = ({refresh}) => {
           <Modal
             isOpen={showTurnoModal}
             onClose={() => setShowTurnoModal(false)}
-            title={nvl(turnoSelected?.ID) ? "Modificar turno" : "Agregar turno"}
-          >
+            title={
+              nvl(turnoSelected?.ID) ? "Modificar turno" : "Agregar turno"
+            }>
             <ModalNuevoTurno
               setShowModal={setShowTurnoModal}
-              turno={nvl(turnoSelected?.ID) ? turnoSelected : {FECHA: diaSeleccionado}}
-              refresh={ async () => {
+              turno={
+                nvl(turnoSelected?.ID)
+                  ? turnoSelected
+                  : { FECHA: diaSeleccionado }
+              }
+              refresh={async () => {
                 setIsLoadingTable(true);
-                await handleCargarTurnos({fecha: diaSeleccionado})
+                await handleCargarTurnos({ fecha: diaSeleccionado });
                 setShowTurnoModal(false);
               }}
             />
@@ -364,10 +369,10 @@ const CalendarioTurnos = ({refresh}) => {
         <ConfirmDialog
           open={showConfirmacionDelete}
           onCancel={() => setShowConfirmacionDelete(false)}
-          onConfirm={ async () => {
+          onConfirm={async () => {
             setShowConfirmacionDelete(false);
             await handleDeleteTurno({ id: turnoSelected?.ID });
-            await handleCargarTurnos({fecha: diaSeleccionado})
+            await handleCargarTurnos({ fecha: diaSeleccionado });
           }}
           title={`¿Eliminar al turno ${turnoSelected?.NOMBRE} ${turnoSelected?.APELLIDO}?`}
           message="Esta acción no se puede deshacer."

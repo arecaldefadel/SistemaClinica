@@ -10,7 +10,10 @@ import {
 } from "@/components/ui";
 import usePagination from "@/hooks/usePagination.js";
 import { useToast } from "@/hooks/useToast";
-import { findInObject, nvl } from "@/utilities/index.js";
+import {
+  // findInObject,
+  nvl,
+} from "@/utilities/index.js";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.jsx";
 import {
   deletePago,
@@ -130,52 +133,20 @@ const HistorialPagos = ({ cliente, refesh }) => {
       USUARIO: { label: "Usuario", width: "auto" },
     },
     classConditions: classConditionsOptions,
-    actions: [
-      {
-        icon: "edit",
-        title: "Editar",
-        func: (id) => {
-          let pago = findInObject(listPagos, id, "ID");
-          pago = { ...pago, PACIENTE: clientId };
-          setShowPagoModal(true);
-          setPagoSelected(pago);
-        },
-      },
-      {
-        icon: "trash",
-        title: "Eliminar",
-        func: (id) => {
-          setShowConfirmacionDelete(true);
-          const pago = findInObject(listPagos, id, "ID");
-          setPagoSelected(pago);
-        },
-      },
-    ],
+    actions: [],
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 w-full">
+    <div className="flex flex-col gap-4 w-full">
       {/* Filtros */}
       <Card>
         <section className="flex flex-col gap-3 ">
           <div className="flex flex-row items-center gap-4 flex-wrap">
             <Input
-              name="paciente"
-              type="text"
-              placeholder="Nombre y Apellido"
+              name="fecha"
+              type="date"
               onChange={(e) =>
-                handleSearchParams({ field: "paciente", value: e.target.value })
-              }
-            />
-            <Input
-              name="documento"
-              type="text"
-              placeholder="Documento"
-              onChange={(e) =>
-                handleSearchParams({
-                  field: "documento",
-                  value: e.target.value,
-                })
+                handleSearchParams({ field: "fecha", value: e.target.value })
               }
             />
             <Select
@@ -188,19 +159,12 @@ const HistorialPagos = ({ cliente, refesh }) => {
                 handleSearchParams({ field: "estado", value: e.target.value })
               }
             />
-
-            <Button
-              title="Buscar"
-              className="rounded-2xl max-lg:hidden"
-              onClick={() => {
-                console.log(searchParams);
-                setIsLoadingTable(true);
-              }}
-            />
           </div>
           <div className="flex flex-row items-center gap-4">
             <Button
-              title="Agregar Pago"
+              title="Agregar"
+              icon={"plus"}
+              variant="success"
               className="rounded-2xl"
               onClick={() => {
                 setShowPagoModal(true);
@@ -209,9 +173,9 @@ const HistorialPagos = ({ cliente, refesh }) => {
             />
             <Button
               title="Buscar"
-              className="rounded-2xl min-lg:hidden"
+              icon={"search"}
+              className="rounded-2xl "
               onClick={() => {
-                console.log(searchParams);
                 setIsLoadingTable(true);
               }}
             />
@@ -239,6 +203,7 @@ const HistorialPagos = ({ cliente, refesh }) => {
             <ModalNuevoPago
               setShowModal={setShowPagoModal}
               pago={pagoSelected}
+              historial
               refresh={() => {
                 setIsLoadingTable(true);
                 setShowPagoModal(false);

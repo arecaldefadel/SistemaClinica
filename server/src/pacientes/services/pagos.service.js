@@ -1,5 +1,5 @@
 import { nvl } from "../../utils.js";
-import { dbExecuteNamed, generateParams } from "../../utils/db.js";
+import { dbExecute, dbExecuteNamed, generateParams } from "../../utils/db.js";
 import { buildResponse } from "../../utils/index.js";
 import { pool } from "../../db/connection.js";
 import dayjs from "dayjs";
@@ -71,6 +71,7 @@ export const getHistorialPagosService = async ({
     cliente: "CLIENTE",
     estado: "ESTADO",
     periodo: "PERIODO",
+    fecha: "FECHA_PAGO",
   };
 
   if (nvl(id) > 0) paramsFilter = { ...paramsFilter, cliente: id };
@@ -194,10 +195,27 @@ export const updatePagoService = async ({
   }
 };
 
-export const deletePagoService = async ({ id }) => {
+export const deletePagoService = async ({ id, userId }) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
+
+    const { data } = await dbExecute(
+      `
+    SELECT usuario_id FROM pagos_clientes
+    WHERE id_pago = ?
+    LIMIT 1
+  `,
+      [id]
+    );
+
+    if (data[0].usuario_id !== userId) {
+      return {
+        error: true,
+        message: `No puede modificar un pago que no le pertenece`,
+      };
+    }
+
     const [res1] = await connection.execute(
       `DELETE FROM pagos_clientes WHERE id_pago = ?;`,
       [id]
@@ -210,7 +228,7 @@ export const deletePagoService = async ({ id }) => {
   } catch (e) {
     await connection.rollback();
     console.error("❌ Error al actualizar pago:", e.message);
-    return { status: "error", message: e.message };
+    return { error: true, status: "error", message: e.message };
   } finally {
     connection.release();
   }

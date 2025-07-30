@@ -10,10 +10,13 @@ const ModalSearhTurnos = () => {
   const [searchParams, setSearchParams] = useState({});
 
   useEffect(() => {
-
     // page: paginationForms?.actualPage ?? 1, limit: parseInt(paginationForms?.countRows) ?? 10,
     Promise.all([
-      getTurnos({ page: turnosPagination.actualPage, pageSize: turnosPagination.countRows, paramsFilter: searchParams  }),
+      getTurnos({
+        page: turnosPagination.actualPage,
+        pageSize: turnosPagination.countRows,
+        paramsFilter: searchParams,
+      }),
     ]).then((res) => {
       const [resTurno] = res;
       const { datos, meta } = resTurno.request;
@@ -59,7 +62,7 @@ const ModalSearhTurnos = () => {
       OS: { label: "OS_CODE", width: "auto" },
       PACIENTE: { label: "", with: "auto" },
     },
-    classConditions : classConditionsOptions, 
+    classConditions: classConditionsOptions,
     actions: [],
   };
 
@@ -93,6 +96,7 @@ const ModalSearhTurnos = () => {
               />
               <Button
                 title="Buscar"
+                icon={"search"}
                 className="rounded-2xl"
                 onClick={() => {
                   setIsLoadingTable(true);

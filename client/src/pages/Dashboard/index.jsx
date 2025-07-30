@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react";
-import { Card, TitleContent, Table as Table, Modal } from "@/components/ui";
+import {
+  Card,
+  TitleContent,
+  Table as Table,
+  Modal,
+  Button,
+} from "@/components/ui";
 import usePagination from "@/hooks/usePagination";
 import useSession from "@/hooks/useSession";
-import { getStats, getTurnos, setTurnoAtendido } from "./services/turnos.services";
+import {
+  getStats,
+  getTurnos,
+  sendNotification,
+  setTurnoAtendido,
+} from "./services/turnos.services";
 import { useToast } from "@/hooks/useToast"; // asumimos que tenés este hook
 import { findInObject } from "@/utilities";
 import dayjs from "dayjs";
@@ -13,17 +24,22 @@ const Index = () => {
   const [turnos, setTurnos] = useState([]);
   const turnosPagination = usePagination();
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [ stats, setStats ] = useState({ cantPacientes : 0, cantidadNuevos: 0, cantidadTurnos: 0, cantidadTurnosPend: 0 })
+  const [stats, setStats] = useState({
+    cantPacientes: 0,
+    cantidadNuevos: 0,
+    cantidadTurnos: 0,
+    cantidadTurnosPend: 0,
+  });
   const { showToast } = useToast();
-  const fechaActual = dayjs()
-  
+  const fechaActual = dayjs();
+
   useEffect(() => {
     // page: paginationForms?.actualPage ?? 1, limit: parseInt(paginationForms?.countRows) ?? 10,
     Promise.all([
       getTurnos({
         page: turnosPagination.actualPage,
         pageSize: turnosPagination.countRows,
-        paramsFilter: { fecha: fechaActual.format('YYYY-MM-DD') }
+        paramsFilter: { fecha: fechaActual.format("YYYY-MM-DD") },
       }),
     ]).then((res) => {
       const [resTurno] = res;
@@ -36,15 +52,44 @@ const Index = () => {
     });
   }, [isLoadingTable, turnosPagination.actualPage, turnosPagination.countRows]);
 
-  useEffect( () =>{
+  useEffect(() => {
     // page: paginationForms?.actualPage ?? 1, limit: parseInt(paginationForms?.countRows) ?? 10,
-    Promise.all([
-      getStats(),
-    ]).then((res) => {
+    Promise.all([getStats()]).then((res) => {
       const [resStats] = res;
-      setStats(resStats.request)
+      setStats(resStats.request);
     });
-  }, [isLoadingTable])
+  }, [isLoadingTable]);
+
+  const handleNotifications = async () => {
+    const request = await sendNotification();
+    if (request.error) {
+      showToast({
+        title: "Error",
+        message: request.message,
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const { request: avisos } = request;
+    let confirmados = "";
+
+    avisos.map((item, index) => {
+      const { value } = item;
+      if (item.status === "fulfilled")
+        confirmados += `• ${value.name} ${
+          avisos.length === index + 1 ? "" : `\n`
+        }`;
+    });
+
+    showToast({
+      title: `Notificado a:`,
+      message: confirmados,
+      type: "success",
+      duration: 3000,
+    });
+  };
 
   const handleSetAtendido = async ({ id, atendido }) => {
     const turno = findInObject(turnos, id, "ID");
@@ -134,13 +179,16 @@ const Index = () => {
       />
       {/* Estadisticas */}
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2 max-md:gap-2 max-sm:p-4">
+        <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1 max-lg:grid-cols-3 max-md:gap-2 max-sm:p-4">
           <Card title={"Total Pacientes"}>
             <div className="flex flex-col">
               <span className="text-4xl max-sm:text-2xl  font-semibold text-[var(--accent)]">
                 {stats.cantPacientes}
               </span>
-              <span className=""> + {stats.cantidadNuevos} más que el mes pasado.</span>
+              <span className="">
+                {" "}
+                + {stats.cantidadNuevos} más que el mes pasado.
+              </span>
             </div>
           </Card>
           <Card title={"Turnos de hoy"}>
@@ -149,6 +197,19 @@ const Index = () => {
                 {stats.cantidadTurnos}
               </span>
               <span className=""> {stats.cantidadTurnosPend} pendiente</span>
+            </div>
+          </Card>
+          <Card title={"Avisos"}>
+            <div className="flex flex-col justify-center items-center">
+              <Button
+                // title="Enviar recordatorios"
+                className={"w-20"}
+                icon={"paper-plane"}
+                onClick={handleNotifications}
+              />
+              <span className="text-gray-500">
+                Recordar a pacientes de turnos para mañana
+              </span>
             </div>
           </Card>
         </div>

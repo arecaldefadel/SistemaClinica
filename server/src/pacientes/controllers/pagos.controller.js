@@ -80,9 +80,14 @@ export const deletePagoController = async (req, res) => {
     return apiResponse(res, 400, "Pago requerido");
   }
   try {
-    const result = await deletePagoService({ id: idPago });
+    const result = await deletePagoService({ id: idPago, userId: req.userId });
     if (result.error) {
-      return apiResponse(res, 500, "Error al eliminar.", result.message);
+      return apiResponse(
+        res,
+        500,
+        `Error al eliminar. ${result.message}`,
+        result.message
+      );
     }
   } catch (error) {
     return apiResponse(res, 500, "Error al eliminar.", error);

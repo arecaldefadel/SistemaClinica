@@ -1,5 +1,5 @@
 import { nvl } from "../../utils.js";
-import { dbExecuteNamed, generateParams } from "../../utils/db.js";
+import { dbExecute, dbExecuteNamed, generateParams } from "../../utils/db.js";
 import { buildResponse } from "../../utils/index.js";
 import { pool } from "../../db/connection.js";
 import dayjs from "dayjs";
@@ -77,7 +77,7 @@ export const getTurnosService = async ({ page, pageSize, paramsFilter }) => {
     FROM turnos
     INNER JOIN clientes ON id_cliente = turnos.cliente_id
     INNER JOIN personas ON id_personas = clientes.persona_id
-    INNER JOIN obras_sociales ON id_os = clientes.os_id
+    LEFT OUTER JOIN obras_sociales ON id_os = clientes.os_id
     WHERE 1=1
     ${params.queryFilterString}
     ORDER BY  apellido_personas  limit :pageSize offset :pageOffset`;
@@ -245,7 +245,31 @@ export const diferenciaEntreTurnosService = async ({ fecha, hora }) => {
     return { status: "500", datos: {}, message: e.message };
   }
 };
-
+export const turnosDeHoy = async () => {
+  const connection = await pool.getConnection();
+  const hoy = dayjs().add(1, "day").format("YYYY-MM-DD");
+  try {
+    const queryCantidadTurnos = `
+      select
+        fecha_turno fecha,
+        hora_turno hora,
+        telefono_cliente telefono,
+        nombre_personas nombre,
+        apellido_personas apellido
+      from turnos 
+        inner join clientes on id_cliente = cliente_id
+        inner join personas on id_personas = persona_id
+      where  fecha_turno like CONCAT('%', ? , '%')
+      `;
+    const resTurnos = await dbExecute(queryCantidadTurnos, [hoy]);
+    return resTurnos;
+  } catch (err) {
+    console.log(err);
+    return { status: "error", message: err.message };
+  } finally {
+    connection.release();
+  }
+};
 export const getStatsService = async () => {
   // Se consulta el usuario y la contraseña
   const mes = dayjs().format("YYYY-MM");

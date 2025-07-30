@@ -1,6 +1,7 @@
 import config from "../../config.js";
 import jwt from "jsonwebtoken";
 import { nvl } from "../../utils.js";
+import rateLimit from "express-rate-limit";
 
 const TOKEN_EXCEPTION = {
   EXPIRED: "TokenExpiredError",
@@ -47,3 +48,70 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).send({ error: true, msg: error.message });
   }
 };
+
+const validarPasswordPorPartes = (password) => {
+  return {
+    minuscula: /[a-z]/.test(password),
+    mayuscula: /[A-Z]/.test(password),
+    numero: /\d/.test(password),
+    simbolo: /[!@#$%^&*()_+{}\[\]]/.test(password),
+    longitud: password.length >= 8 && password.length <= 64,
+    sinEspacios: !/\s/.test(password),
+  };
+};
+
+export const validarNewPassword = (req, res, next) => {
+  const { newPassword, repeatNewPassword } = req.body;
+  if (newPassword.lenght < 8)
+    return res.status(401).json({
+      error: true,
+      message: "La contraseña debería tener al menos 8 caracteres.",
+    });
+
+  if (newPassword !== repeatNewPassword)
+    return res.status(401).json({
+      error: true,
+      message:
+        "Las contraseñas no coinciden. Asegurate de escribir la misma en ambos campos.",
+    });
+
+  const resultado = validarPasswordPorPartes(newPassword);
+
+  if (!resultado.minuscula)
+    return res.status(400).json({
+      error: true,
+      message: "Debe incluir al menos una letra minúscula.",
+    });
+  if (!resultado.mayuscula)
+    return res.status(400).json({
+      error: true,
+      message: "Debe incluir al menos una letra mayúscula.",
+    });
+  if (!resultado.numero)
+    return res
+      .status(400)
+      .json({ error: true, message: "Debe incluir al menos un número." });
+  if (!resultado.simbolo)
+    return res.status(400).json({
+      error: true,
+      message:
+        "Debe incluir al menos un carácter especial, por ejemplo: !@#$%^&*()_+{}[].",
+    });
+  if (!resultado.longitud)
+    return res.status(400).json({
+      error: true,
+      message: "La contraseña debe tener al menos 8 caracteres.",
+    });
+  if (!resultado.sinEspacios)
+    return res
+      .status(400)
+      .json({ error: true, message: "No se permite el uso de espacios." });
+};
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 3, // máximo 5 intentos por IP
+  message: "Demasiados intentos de inicio de sesión.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});

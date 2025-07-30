@@ -7,6 +7,7 @@ import { nvl } from "@/utilities";
 import { Dropdown, Modal, Input, Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import ModaChangePassword from "../users/ModaChangePassword";
 
 const Layout = ({ menuUser }) => {
   const navigate = useNavigate();
@@ -60,8 +61,7 @@ const Layout = ({ menuUser }) => {
       {useSidebarHook.sidebarOpen ? (
         <div
           className="h-full w-full absolute z-29 bg-gray-600 opacity-50"
-          onClick={() => useSidebarHook.hideSidebar()}
-        ></div>
+          onClick={() => useSidebarHook.hideSidebar()}></div>
       ) : null}
       <Sidebar
         menu={ItemsMenu}
@@ -84,27 +84,22 @@ const Layout = ({ menuUser }) => {
                   <span className="font-semibold">{userData.nick}</span>
                   <span
                     id="user-info-letter"
-                    className="flex items-center justify-center font-bold text-[var(--accent)] w-10 h-10 rounded-full bg-[var(--primary)] cursor-pointer"
-                  ></span>
+                    className="flex items-center justify-center font-bold text-[var(--accent)] w-10 h-10 rounded-full bg-[var(--primary)] cursor-pointer"></span>
                 </div>
-              }
-            >
+              }>
               <button
                 className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
-                onClick={() => setShowProfile(true)}
-              >
+                onClick={() => setShowProfile(true)}>
                 Modificar perfil
               </button>
               <button
                 className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
-                onClick={() => setShowChangePassword(true)}
-              >
+                onClick={() => setShowChangePassword(true)}>
                 Cambiar contraseña
               </button>
               <button
                 onClick={handleLogOut}
-                className="w-full text-left px-4 py-2 hover:bg-[var(--gray)] text-[var(--button-danger)]"
-              >
+                className="w-full text-left px-4 py-2 hover:bg-[var(--gray)] text-[var(--button-danger)]">
                 Cerrar sesión
               </button>
             </Dropdown>
@@ -123,57 +118,17 @@ const Layout = ({ menuUser }) => {
       <Modal
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}
-        title="Modificar Contraseña"
-      >
-        <div className="flex flex-col gap-4">
-          <form className="flex flex-col gap-4">
-            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
-              <Input
-                label={"Contraseña Actual"}
-                name={"password"}
-                type="password"
-                value={""}
-                className="max-sm:w-full"
-              />
-              <Input
-                label={"Nueva Contraseña"}
-                name={"newPassword"}
-                type="password"
-                value={""}
-                className="max-sm:w-full"
-              />
-            </div>
-            <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">
-              <Input
-                label={"Repetir Nueva Contraseña"}
-                name={"repeatNewPassword"}
-                type="password"
-                value={""}
-                className="max-sm:w-full"
-              />
-            </div>
-            <div className="flex flex-row">
-              <div className="flex gap-4">
-                <Button
-                  title="Cancelar"
-                  variant="danger"
-                  onClick={() => setShowChangePassword(false)}
-                />
-                <Button
-                  title="Guardar"
-                  onClick={() => setShowChangePassword(false)}
-                />
-              </div>
-            </div>
-          </form>
-        </div>
+        title="Modificar Contraseña">
+        <ModaChangePassword
+          refresh={() => setShowChangePassword(false)}
+          setShowModal={setShowChangePassword}
+        />
       </Modal>
       {/* Modal de Modificación de Perfil */}
       <Modal
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
-        title="Modificar Perfil"
-      >
+        title="Modificar Perfil">
         <div className="flex flex-col gap-4">
           <form className="flex flex-col gap-4">
             <div className="flex gap-4 md:flex-row  flex-col max-sm:w-full">

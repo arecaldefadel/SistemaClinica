@@ -3,6 +3,7 @@ import users_router from "./users/routes/users.routes.js";
 import pacientes_router from "./pacientes/routes/pacientes.routes.js";
 import turnos_router from "./pacientes/routes/turnos.routes.js";
 import pagos_router from "./pacientes/routes/pagos.routes.js";
+import agent_router from "./agent/routes/agent.routes.js";
 
 /*
   funcion router madre para el manejo
@@ -19,6 +20,7 @@ const routerGetway = (app) => {
   router.use("/pacientes", pacientes_router);
   router.use("/turnos", turnos_router);
   router.use("/pagos", pagos_router);
+  router.use("/ws", agent_router);
 };
 
 export default routerGetway;
