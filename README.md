@@ -1,4 +1,4 @@
-# 🏥 SistemaClinica
+# 🏥 Sistema de gestión integral para clínicas médicas
 
 Sistema de gestión integral para clínicas médicas con funcionalidades avanzadas de administración de pacientes, turnos, pagos e integración con WhatsApp.
 
