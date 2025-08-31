@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --env-file=.env --watch src/index.js",
-    "new": "node initModule.mjs"
+    "new": "node initModule.mjs",
+    "cleanup": "node cleanup-session.js",
+    "cleanup:force": "node cleanup-session.js && rmdir /s /q .wwebjs_auth .wwebjs_cache 2>nul || true"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +29,7 @@
     "node-cron": "^4.2.1",
     "qr-image": "^3.2.0",
     "qrcode-terminal": "^0.12.0",
+    "socket.io": "^4.8.1",
     "whatsapp-web.js": "^1.27.0"
   },
   "devDependencies": {
@@ -36,6 +39,6 @@
     "@babel/preset-env": "7.18.2",
     "eslint": "^8.50.0",
     "prettier": "^2.8.8",
-    "standard": "^17.1.0"
+    "standard": "^17.2.0"
   }
 }

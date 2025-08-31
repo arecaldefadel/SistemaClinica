@@ -65,3 +65,6 @@ Por favor confirmar asistencia.
     return { error: true, errorLot: [err] };
   }
 };
+
+/** Servicio para verificar que el usuario haya iniciado sesión con el bot de whatsapp */
+export const verificarInicioSesion = async () => {};

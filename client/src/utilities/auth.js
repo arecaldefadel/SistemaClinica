@@ -1,8 +1,8 @@
 import axios from "axios";
 import { ENDPOINTS } from "@/utilities/contanstes.js";
 
-export const validateToken = async () => {
-  const token = localStorage.getItem("token");
+export const validateToken = async ({ tokenParam }) => {
+  const token = tokenParam || localStorage.getItem("token");
   if (!token) return false;
 
   try {

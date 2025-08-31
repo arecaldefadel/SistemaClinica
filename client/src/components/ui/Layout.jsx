@@ -87,11 +87,11 @@ const Layout = ({ menuUser }) => {
                     className="flex items-center justify-center font-bold text-[var(--accent)] w-10 h-10 rounded-full bg-[var(--primary)] cursor-pointer"></span>
                 </div>
               }>
-              <button
+              {/* <button
                 className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
                 onClick={() => setShowProfile(true)}>
                 Modificar perfil
-              </button>
+              </button> */}
               <button
                 className="w-full text-left px-4 py-2 hover:bg-[var(--gray)]"
                 onClick={() => setShowChangePassword(true)}>

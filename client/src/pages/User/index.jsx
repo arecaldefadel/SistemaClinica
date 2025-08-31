@@ -4,6 +4,7 @@ import settings from "@/settings.json";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth.js";
 import BraveWarning from "@/components/turnos/BraveWarning";
+import { validateToken } from "@/utilities/auth";
 
 const LogIn = () => {
   const { login } = useAuth();
@@ -29,14 +30,29 @@ const LogIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const session = await login({
-      username: userForm.username,
-      password: userForm.password,
-    });
-    if (session?.status !== 200) {
-      setError(session?.response.data);
-    } else {
-      navigate("/");
+    try {
+      const session = await login({
+        username: userForm.username,
+        password: userForm.password,
+      });
+
+      // Validación más robusta
+      if (session?.data?.token && session?.data?.id) {
+        // Verificar que el token sea válido antes de redirigir
+        const isValidToken = await validateToken({
+          tokenParam: session.data.token,
+        });
+        if (isValidToken) {
+          navigate("/");
+        } else {
+          setError("Error de autenticación. Intente nuevamente.");
+        }
+      } else {
+        setError(session?.error || "Error de autenticación");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Error de conexión. Intente nuevamente.");
     }
   };
 
@@ -48,10 +64,12 @@ const LogIn = () => {
           <div className="flex items-center justify-center w-24 h-24 mb-8 bg-white rounded-full shadow-lg">
             <img src={settings.logoSystem} alt="Logo" className="w-16 h-16" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Bienvenido</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            {settings.nameSystem}
+          </h1>
           <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold text-center text-gray-800">
-              {settings.nameSystem}
+              Bienvenido
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="mb-4">

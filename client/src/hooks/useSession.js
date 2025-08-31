@@ -11,7 +11,7 @@ function useSession() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    Promise.all([validateToken()]).then((res) => {
+    Promise.all([validateToken({})]).then((res) => {
       const verifyResult = res[0];
       if (!verifyResult) {
         showToast({

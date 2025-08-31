@@ -1,5 +1,5 @@
 {
-  "nameSystem": "Clínica San Pedro",
+  "nameSystem": "Sistema de Gestión de Pacientes",
   "nameSystemShort": "CSP",
   "logoSystem": "/logo.png",
   "menu": [
@@ -37,6 +37,24 @@
       "DESCRIPCION": "Pagos",
       "VISIBLE": 1,
       "ICONO": "money-check-dollar",
+      "MENU": "1"
+    },
+    {
+      "CODIGO": "5",
+      "PATHNAME": "configuracion",
+      "componentPath": "menu-configuracion",
+      "DESCRIPCION": "Configuración",
+      "VISIBLE": 1,
+      "ICONO": "gear",
+      "MENU": "1"
+    },
+    {
+      "CODIGO": "6",
+      "PATHNAME": "playground",
+      "componentPath": "menu-playground",
+      "DESCRIPCION": "Playground",
+      "VISIBLE": 1,
+      "ICONO": "gear",
       "MENU": "1"
     }
   ]

@@ -3,12 +3,11 @@ import { validateToken } from "@/utilities/auth";
 import { useEffect, useState } from "react";
 
 const PrivateRoute = ({ children }) => {
-
   const [isValid, setIsValid] = useState(null); // null = cargando
 
   useEffect(() => {
     // Verifica si el token es válido
-    Promise.all([validateToken()])
+    Promise.all([validateToken({})])
       .then((results) => {
         const [ok] = results;
         setIsValid(ok);
@@ -23,6 +22,6 @@ const PrivateRoute = ({ children }) => {
   if (!isValid) return <Navigate to="/login" replace />;
 
   return children;
-}
+};
 
 export default PrivateRoute;

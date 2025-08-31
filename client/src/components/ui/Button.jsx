@@ -5,6 +5,7 @@ const Button = ({
   variant = "default",
   icon,
   className,
+  children,
   ...rest
 }) => {
   const buttonVariants = {
@@ -25,6 +26,7 @@ const Button = ({
       {...rest}>
       {icon ? <Icon iconName={icon}></Icon> : null}
       {title}
+      {children}
     </button>
   );
 };
