@@ -393,8 +393,8 @@ Este proyecto está bajo la licencia **ISC**.
 
 ## 📞 Soporte
 
-- **Issues**: [GitHub Issues](https://github.com/tu-usuario/SistemaClinica/issues)
-- **Documentación**: [Wiki del proyecto](https://github.com/tu-usuario/SistemaClinica/wiki)
+- **Issues**: [GitHub Issues](https://github.com/arecaldefadel/SistemaClinica/issues)
+- **Documentación**: [Wiki del proyecto](https://github.com/arecaldefadel/SistemaClinica/wiki)
 - **Contacto**: [Tu email de contacto]
 
 ## 🙏 Agradecimientos
